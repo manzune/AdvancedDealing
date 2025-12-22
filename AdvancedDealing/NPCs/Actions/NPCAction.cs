@@ -27,7 +27,7 @@ namespace AdvancedDealing.NPCs.Actions
 
         protected NPCScheduleManager schedule;
 
-        public NPCAction onEnded;
+        public Action onEnded;
 
         protected int consecutivePathingFailures;
 
@@ -72,8 +72,8 @@ namespace AdvancedDealing.NPCs.Actions
         {
             schedule.DisableSchedule();
 
-            NetworkSingleton<TimeManager>.Instance.onMinutePass -= new NPCAction(MinPassed);
-            NetworkSingleton<TimeManager>.Instance.onMinutePass += new NPCAction(MinPassed);
+            NetworkSingleton<TimeManager>.Instance.onMinutePass -= new Action(MinPassed);
+            NetworkSingleton<TimeManager>.Instance.onMinutePass += new Action(MinPassed);
 
             Utils.Logger.Debug("ScheduleManager", $"{ActionType} \"{ActionName}\" for {npc.name} started.");
 
@@ -103,7 +103,7 @@ namespace AdvancedDealing.NPCs.Actions
 
             if (NetworkSingleton<TimeManager>.InstanceExists)
             {
-                NetworkSingleton<TimeManager>.Instance.onMinutePass -= new NPCAction(MinPassed);
+                NetworkSingleton<TimeManager>.Instance.onMinutePass -= new Action(MinPassed);
             }
         }
 

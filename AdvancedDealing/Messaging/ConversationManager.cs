@@ -24,6 +24,8 @@ namespace AdvancedDealing.Messaging
 
         private readonly MSGConversation _conversation;
 
+        private bool _uiPatched;
+
         public ConversationManager(NPC npc)
         {
             this.npc = npc;
@@ -49,13 +51,20 @@ namespace AdvancedDealing.Messaging
                     sMsg.disableDefaultSendBehaviour = msg.DisableDefaultSendBehaviour;
                     sMsg.onSelected = new Action(msg.OnSelected);
                     sMsg.onSent = new Action(msg.OnSent);
+
+                    _sendableMessages.Add(msg);
                 }
             }
 
-            npc.ConversationCanBeHidden = false;
+            if (!_uiPatched)
+            {
+                npc.ConversationCanBeHidden = false;
 
-            _conversation.EnsureUIExists();
-            _conversation.SetEntryVisibility(true);
+                _conversation.EnsureUIExists();
+                _conversation.SetEntryVisibility(true);
+
+                _uiPatched = true;
+            }
         }
 
         public void AddMessage(MessageBase message)
@@ -79,6 +88,11 @@ namespace AdvancedDealing.Messaging
             }
 
             return manager;
+        }
+
+        public static List<ConversationManager> GetAllManager()
+        {
+            return _cache;
         }
 
         public static void ClearAll()

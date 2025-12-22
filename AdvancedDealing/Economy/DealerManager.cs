@@ -6,6 +6,8 @@ using AdvancedDealing.Persistence.Datas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdvancedDealing.Messaging.Messages;
+
 
 #if IL2CPP
 using Il2CppScheduleOne.Economy;
@@ -64,7 +66,8 @@ namespace AdvancedDealing.Economy
             schedule.AddAction(new NPCSignal_DeliverCash(dealer));
 
             ConversationManager conversation = new(dealer);
-            // conversation.CreateSendableMessages();
+            conversation.AddMessage(new Message_EnableDeliverCash(this));
+            conversation.AddMessage(new Message_DisableDeliverCash(this));
 
             DealerData = dealerData;
             Schedule = schedule;
