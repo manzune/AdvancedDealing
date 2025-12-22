@@ -1,17 +1,20 @@
-﻿using AdvancedDealing.Persistence.Datas;
+﻿using AdvancedDealing.Economy;
+using AdvancedDealing.NPCs;
+using AdvancedDealing.Persistence.Datas;
+using AdvancedDealing.UI;
 using MelonLoader;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
-using Il2CppScheduleOne.Economy;
-
 
 #if IL2CPP
 using Il2CppScheduleOne.DevUtilities;
+using Il2CppScheduleOne.Economy;
 using Il2CppScheduleOne.Networking;
 using S1SaveManager = Il2CppScheduleOne.Persistence.SaveManager;
 #elif MONO
 using ScheduleOne.DevUtilities;
+using ScheduleOne.Economy;
 using ScheduleOne.Networking;
 using S1SaveManager = ScheduleOne.Persistence.SaveManager;
 #endif
@@ -101,7 +104,7 @@ namespace AdvancedDealing.Persistence
         public void ClearSavegame()
         {
             DealerManagementAppModification.Clear();
-            ScheduleManager.ClearAll();
+            Schedule.ClearAll();
 
             Utils.Logger.Msg($"Savegame modifications cleared");
         }

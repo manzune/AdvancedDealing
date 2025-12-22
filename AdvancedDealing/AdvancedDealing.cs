@@ -38,7 +38,7 @@ namespace AdvancedDealing
             {
                 loader.LoadSavegame();
             }
-            else if (sceneName == "Menu" && loader.IsSaveLoaded)
+            else if (sceneName == "Menu" && loader.SavegameLoaded)
             {
                 loader.ClearSavegame();
             }

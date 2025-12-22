@@ -1,7 +1,6 @@
 ﻿using MelonLoader;
 using MelonLoader.Utils;
 using System.IO;
-using static Il2CppScheduleOne.AvatarFramework.Customization.CharacterCreator;
 
 namespace AdvancedDealing
 {
