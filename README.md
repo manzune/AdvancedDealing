@@ -37,7 +37,7 @@ If you're running into any bugs or issues using this mod, use the [Issues sectio
 ### Installation
 1. Install [MelonLoader﻿](https://melonwiki.xyz) Version 0.7 or higher
 2. Download the latest release of this mod
-3. Unzip the archive and copy the *DLL files* to the games **Mods** folder
+3. Unzip the archive and copy the *DLL file* to the games **Mods** folder
 4. Launch the game and enjoy
 
 Game branch will be choosen automatically!
