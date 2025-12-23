@@ -318,7 +318,7 @@ namespace AdvancedDealing.Economy
 
         public void SendPlayerMessage(string text)
         {
-            SendMessage(_dealer, text);
+            SendPlayerMessage(_dealer, text);
         }
 
         public static void SendPlayerMessage(Dealer dealer, string text)
