@@ -25,7 +25,7 @@ namespace AdvancedDealing
         {
             ModConfig.Initialize();
 
-            Utils.Logger.Msg($"{ModInfo.NAME} {ModInfo.VERSION} initialized");
+            Utils.Logger.Msg($"{ModInfo.NAME} v{ModInfo.VERSION} initialized");
         }
 
         public override void OnEarlyInitializeMelon()

@@ -29,7 +29,8 @@ namespace AdvancedDealing.Messaging.Messages
         public override void OnSelected()
         {
             _dealerManager.DealerData.DeliverCash = true;
-            _dealerManager.SendMessage($"I will deliver cash if i got ${"1500"} in my pockets.", false, true, 0.5f);
+            _dealerManager.SendPlayerMessage($"Yoo, could you deliver your cash to the dead drop? Keep ${"1500"} at max.");
+            _dealerManager.SendMessage($"Sure thing boss!", false, true, 3f);
         }
     }
 }

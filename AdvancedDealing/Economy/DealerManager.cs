@@ -312,9 +312,19 @@ namespace AdvancedDealing.Economy
             else
             {
                 Message msg = new(text, Message.ESenderType.Other);
-
                 dealer.MSGConversation.SendMessage(msg, notify, network);
             }
+        }
+
+        public void SendPlayerMessage(string text)
+        {
+            SendMessage(_dealer, text);
+        }
+
+        public static void SendPlayerMessage(Dealer dealer, string text)
+        {
+            Message msg = new(text, Message.ESenderType.Player);
+            dealer.MSGConversation.SendMessage(msg);
         }
 
         public static void Load()

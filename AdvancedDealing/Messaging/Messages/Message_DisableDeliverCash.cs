@@ -29,7 +29,8 @@ namespace AdvancedDealing.Messaging.Messages
         public override void OnSelected()
         {
             _dealerManager.DealerData.DeliverCash = false;
-            _dealerManager.SendMessage($"I will no longer deliver my cash.", false, true, 0.5f);
+            _dealerManager.SendPlayerMessage("The dead drops are not safe atm... I will meet you to take the cash!");
+            _dealerManager.SendMessage($"Okay", false, true, 3f);
         }
     }
 }

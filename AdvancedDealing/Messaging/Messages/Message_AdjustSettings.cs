@@ -29,7 +29,7 @@ namespace AdvancedDealing.Messaging.Messages
 
         public override void OnSelected()
         {
-            MessagesAppModification.SettingsPopup.Open(conversation, dealerManager);
+            MessagesAppModification.SettingsPopup.Open(dealerManager);
         }
     }
 }

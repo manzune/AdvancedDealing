@@ -22,16 +22,15 @@ namespace AdvancedDealing.UI
 
         public static void Create()
         {
-            MessagesApp app = PlayerSingleton<MessagesApp>.Instance;
             if (SettingsPopup == null)
             {
-                CreateSettingsPopup(app);
+                SettingsPopup = new();
             }
         }
 
         public static void Clear()
         {
-
+            SettingsPopup = null;
         }
 
         private static void CreateSettingsPopup(MessagesApp app)
@@ -52,7 +51,7 @@ namespace AdvancedDealing.UI
             Text titleText = title.GetComponent<Text>();
             titleText.text = "Adjust Settings";
 
-            SettingsPopup.TitleText = titleText;
+            // SettingsPopup.TitleText = titleText;
 
             // Buttons
             GameObject cancel = settingsPopup.transform.Find("Shade/Content/Cancel").gameObject;
@@ -60,7 +59,7 @@ namespace AdvancedDealing.UI
 
             Button cancelButton = cancel.GetComponent<Button>();
             cancelButton.onClick.RemoveAllListeners();
-            cancelButton.onClick.AddListener((UnityAction)SettingsPopup.Exit);
+            cancelButton.onClick.AddListener((UnityAction)SettingsPopup.Cancel);
 
             Object.Destroy(settingsPopup.transform.Find("Shade/Content/Send").gameObject);
 
@@ -97,12 +96,7 @@ namespace AdvancedDealing.UI
             RectTransform contentTransform = content.GetComponent<RectTransform>();
             contentTransform.sizeDelta = new Vector2(-160f, 100f);
 
-            CreateInputFieldTemplate(app);
-
-            SettingsPopup.MaxCustomersField = CreateInputField("MaxCustomers", "Max Customers (8 - 24)", contentTransform, InputField.ContentType.IntegerNumber, 0, 8, 24);
-            SettingsPopup.ItemSlotsField = CreateInputField("ItemSlots", "Item Slots (5 - 20)", contentTransform, InputField.ContentType.IntegerNumber, 1, 5, 20);
-            SettingsPopup.CutField = CreateInputField("Cut", "Cut (0 - 1)", contentTransform, InputField.ContentType.DecimalNumber, 2, 0, 1);
-            SettingsPopup.SpeedMultiplierField = CreateInputField("SpeedMultiplier", "Speed Multiplier (1 - 10)", contentTransform, InputField.ContentType.DecimalNumber, 3, 1, 10);
+            
 
             Object.Destroy(_inputFieldTemplate);
         }
@@ -203,7 +197,7 @@ namespace AdvancedDealing.UI
 
                     if (!(rangeMin <= value && value <= rangeMax))
                     {
-                        inputField.text = SettingsPopup.GetOldValue(name);
+                        // inputField.text = SettingsPopup.GetOldValue(name);
                     }
                 }
             }
@@ -216,7 +210,7 @@ namespace AdvancedDealing.UI
 
                     if (!(rangeMin <= value && value <= rangeMax))
                     {
-                        inputField.text = SettingsPopup.GetOldValue(name);
+                        // inputField.text = SettingsPopup.GetOldValue(name);
                     }
                 }
             }
