@@ -8,28 +8,26 @@ using ScheduleOne.Messaging;
 
 namespace AdvancedDealing.Messaging.Messages
 {
-    public class Message_DisableDeliverCash(DealerManager dealerManager) : MessageBase
+    public class Message_AccessInventory(DealerManager dealerManager) : MessageBase
     {
         private readonly DealerManager _dealerManager = dealerManager;
 
-        public override string Text => "Stop Cash Delivery";
+        public override string Text => "I need to access your inventory";
 
         public override bool DisableDefaultSendBehaviour => true;
 
         public override bool ShouldShowCheck(SendableMessage sMsg)
         {
-            DealerManager dealerManager = DealerManager.GetManager(npc.GUID.ToString());
-            if (dealerManager.DealerData.DeliverCash)
+            if (ModConfig.RealisticMode)
             {
-                return true;
+                return false;
             }
-            return false;
+            return true;
         }
 
         public override void OnSelected()
         {
-            _dealerManager.DealerData.DeliverCash = false;
-            _dealerManager.SendMessage($"I will no longer deliver my cash.", false, true, 0.5f);
+            // _dealerManager.ManagedDealer.Inventory.
         }
     }
 }

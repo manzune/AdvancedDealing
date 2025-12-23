@@ -1,6 +1,10 @@
 ﻿using AdvancedDealing.Messaging;
 using HarmonyLib;
 using System.Collections.Generic;
+using AdvancedDealing.Persistence;
+using AdvancedDealing.UI;
+
+
 
 #if IL2CPP
 using Il2CppScheduleOne.UI.Phone.Messages;
@@ -19,9 +23,14 @@ namespace AdvancedDealing.Patches
         [HarmonyPatch("SetOpen")]
         public static void SetOpenPostfix()
         {
-            foreach (ConversationManager conversation in ConversationManager.GetAllManager())
+            if (SaveManager.Instance.SavegameLoaded)
             {
-                conversation.CreateSendableMessages();
+                foreach (ConversationManager conversation in ConversationManager.GetAllManager())
+                {
+                    conversation.CreateSendableMessages();
+                }
+
+                MessagesAppModification.Create();
             }
         }
     }

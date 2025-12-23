@@ -29,7 +29,7 @@ namespace AdvancedDealing.Messaging.Messages
 
         public virtual bool ShouldShowCheck(SendableMessage sMsg)
         {
-            return false;
+            return true;
         }
 
         public virtual void OnSelected() { }

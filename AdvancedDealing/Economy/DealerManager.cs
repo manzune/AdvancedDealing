@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdvancedDealing.Messaging.Messages;
+using Il2CppScheduleOne.UI.Phone.Messages;
+
 
 
 #if IL2CPP
@@ -68,6 +70,8 @@ namespace AdvancedDealing.Economy
             ConversationManager conversation = new(dealer);
             conversation.AddMessage(new Message_EnableDeliverCash(this));
             conversation.AddMessage(new Message_DisableDeliverCash(this));
+            conversation.AddMessage(new Message_AccessInventory(this));
+            conversation.AddMessage(new Message_AdjustSettings(this));
 
             DealerData = dealerData;
             Schedule = schedule;
@@ -291,16 +295,27 @@ namespace AdvancedDealing.Economy
             }
         }
 
-        public void SendMessage(string text, bool notify = true, bool network = true)
+        public void SendMessage(string text, bool notify = true, bool network = true, float delay = 0)
         {
-            SendMessage(_dealer, text, notify, network);
+            SendMessage(_dealer, text, notify, network, delay);
         }
 
-        public static void SendMessage(Dealer dealer, string text, bool notify = true, bool network = true)
+        public static void SendMessage(Dealer dealer, string text, bool notify = true, bool network = true, float delay = 0)
         {
-            Message msg = new(text, Message.ESenderType.Other);
+            if (delay != 0)
+            {
+                MessageChain msgChain = new();
+                msgChain.Messages.Add(text);
+                msgChain.id = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
 
-            dealer.MSGConversation.SendMessage(msg, notify, network);
+                dealer.MSGConversation.SendMessageChain(msgChain, delay, notify, network);
+            }
+            else
+            {
+                Message msg = new(text, Message.ESenderType.Other);
+
+                dealer.MSGConversation.SendMessage(msg, notify, network);
+            }
         }
 
         public static void Load()
@@ -318,7 +333,6 @@ namespace AdvancedDealing.Economy
 
         private static void OnDealerRecruited(Dealer dealer)
         {
-            Utils.Logger.Debug("Recruited");
             AddDealer(dealer);
         }
     }

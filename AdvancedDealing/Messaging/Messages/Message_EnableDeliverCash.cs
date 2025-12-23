@@ -23,16 +23,13 @@ namespace AdvancedDealing.Messaging.Messages
             {
                 return true;
             }
-            return base.ShouldShowCheck(sMsg);
+            return false;
         }
 
         public override void OnSelected()
         {
             _dealerManager.DealerData.DeliverCash = true;
-
-            float threshold = 1500f;
-
-            _dealerManager.SendMessage($"I will deliver cash if i got ${threshold} in my pockets.", false, true);
+            _dealerManager.SendMessage($"I will deliver cash if i got ${"1500"} in my pockets.", false, true, 0.5f);
         }
     }
 }

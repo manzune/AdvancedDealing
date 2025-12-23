@@ -67,7 +67,7 @@ namespace AdvancedDealing.UI
             Utils.Logger.Debug("DealerManagementAppModification", "DealerManagementAppModification cleared");
         }
 
-        public static void CreateCustomerEntries(DealerManagementApp app)
+        private static void CreateCustomerEntries(DealerManagementApp app)
         {
             int count = 24;
 
@@ -108,7 +108,7 @@ namespace AdvancedDealing.UI
             Utils.Logger.Debug("DealerManagementAppModification", $"Customer entries created: {count}");
         }
 
-        public static void CreateCustomersScrollView(DealerManagementApp app)
+        private static void CreateCustomersScrollView(DealerManagementApp app)
         {
             RectTransform content = app.transform.Find("Container/Background/Content")?.GetComponent<RectTransform>();
             RectTransform customers = app.CustomerEntries.Last<RectTransform>()?.parent?.GetComponent<RectTransform>();
@@ -192,7 +192,7 @@ namespace AdvancedDealing.UI
             text.text = $"Assigned Customers ({dealerManager.ManagedDealer.AssignedCustomers.Count}/{dealerManager.DealerData.MaxCustomers})";
         }
 
-        public static void CreateDeadDropSelector(DealerManagementApp app)
+        private static void CreateDeadDropSelector(DealerManagementApp app)
         {
             GameObject customerSelector = app.CustomerSelector.gameObject;
             GameObject deadDropSelector = Object.Instantiate(customerSelector, customerSelector.transform.parent);
@@ -289,14 +289,14 @@ namespace AdvancedDealing.UI
                 DeadDropEntries.Add(deadDropEntry);
             }
 
-            UnityEngine.Object.Destroy(oldContent.gameObject);
+            Object.Destroy(oldContent.gameObject);
 
             DeadDropSelector = deadDropSelector;
 
             Utils.Logger.Debug("DealerManagementAppModification", "DeadDropSelector created");
         }
 
-        public static void CreateDeadDropSelectorButton(DealerManagementApp app)
+        private static void CreateDeadDropSelectorButton(DealerManagementApp app)
         {
             GameObject contentObject = app.transform.Find("Container/Background/Content")?.gameObject;
             RectTransform content = contentObject.GetComponent<RectTransform>();
@@ -336,7 +336,7 @@ namespace AdvancedDealing.UI
             Utils.Logger.Debug("DealerManagementAppModification", "DeadDropSelectorButton created");
         }
 
-        public static void SelectDeadDrop(DealerManagementApp app, string guid, string name)
+        private static void SelectDeadDrop(DealerManagementApp app, string guid, string name)
         {
             Dealer dealer = app.SelectedDealer;
 
@@ -349,7 +349,7 @@ namespace AdvancedDealing.UI
             }
         }
 
-        public static void SortDeadDropEntries()
+        private static void SortDeadDropEntries()
         {
             if (DeadDropSelector == null) return;
 

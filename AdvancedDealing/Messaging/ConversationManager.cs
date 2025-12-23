@@ -22,14 +22,14 @@ namespace AdvancedDealing.Messaging
 
         public readonly NPC npc;
 
-        private readonly MSGConversation _conversation;
+        public readonly MSGConversation conversation;
 
         private bool _uiPatched;
 
         public ConversationManager(NPC npc)
         {
             this.npc = npc;
-            _conversation = npc.MSGConversation;
+            conversation = npc.MSGConversation;
 
             Utils.Logger.Debug("ConversationManager", $"Conversation created: {npc.GUID}");
 
@@ -42,7 +42,7 @@ namespace AdvancedDealing.Messaging
             {
                 if (!_sendableMessages.Contains(msg))
                 {
-                    SendableMessage sMsg = _conversation.CreateSendableMessage(msg.Text);
+                    SendableMessage sMsg = conversation.CreateSendableMessage(msg.Text);
 #if IL2CPP
                     sMsg.ShouldShowCheck = (SendableMessage.BoolCheck)msg.ShouldShowCheck;
 #elif MONO
@@ -60,8 +60,8 @@ namespace AdvancedDealing.Messaging
             {
                 npc.ConversationCanBeHidden = false;
 
-                _conversation.EnsureUIExists();
-                _conversation.SetEntryVisibility(true);
+                conversation.EnsureUIExists();
+                conversation.SetEntryVisibility(true);
 
                 _uiPatched = true;
             }
@@ -73,7 +73,7 @@ namespace AdvancedDealing.Messaging
 
             if (_messageList.Exists(a => a.GetType() == type)) return;
 
-            message.SetReferences(npc, this, _conversation);
+            message.SetReferences(npc, this, conversation);
             _messageList.Add(message);
         }
 
