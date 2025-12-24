@@ -15,6 +15,7 @@ I couldn't find a dealer mod that meets my expectations - so i created my own on
 * Add item slots to your dealers
 * Negotiate cut %
 * Change speed multiplier
+* Fire your dealers
 * Fully compatible with Mod Manager
 * Multiplayer ready
 
