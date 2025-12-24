@@ -74,15 +74,16 @@ namespace AdvancedDealing.Messaging
 
         public void Destroy()
         {
-            if (UIPatched)
+            if (UIPatched && NPC != null && Conversation !=null)
             {
                 NPC.ConversationCanBeHidden = true;
 
                 Conversation.EnsureUIExists();
                 Conversation.SetEntryVisibility(false);
-
-                UIPatched = false;
             }
+
+            UIPatched = false;
+            cache.Remove(this);
         }
 
         public void AddMessage(MessageBase message)

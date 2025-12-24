@@ -103,7 +103,7 @@ namespace AdvancedDealing
                 default_value: false,
                 display_name: "Enable Debug Mode",
                 description: "Enables debugging for this mod",
-                is_hidden: true
+                is_hidden: false
             );
             generalCategory.CreateEntry<bool>
             (
@@ -126,11 +126,11 @@ namespace AdvancedDealing
             realisticModeCategory.CreateEntry<float>
             (
                 identifier: "ExperienceModifier",
-                default_value: 1f,
+                default_value: 2f,
                 display_name: "Experience Modifier (Higher = More XP needed)",
                 description: "How hard should it be?",
                 is_hidden: false,
-                validator: new ValueRange<float>(0.1f, 10f)
+                validator: new ValueRange<float>(0.1f, 5f)
             );
             realisticModeCategory.CreateEntry<int>
             (

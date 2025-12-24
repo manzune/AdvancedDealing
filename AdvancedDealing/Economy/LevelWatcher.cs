@@ -5,13 +5,15 @@ namespace AdvancedDealing.Economy
 {
     public class LevelWatcher
     {
+        public const int MaxLevel = 10;
+
         public const int MaxCustomersBase = 4;
 
         public const int ItemSlotsBase = 5;
 
         public const float SpeedMultiplierBase = 0.8f;
 
-        public const float ContractCompleteXP = 15f;
+        public const float ContractCompleteXP = 0.5f;
 
         private readonly DealerManager _dealerManager;
 
@@ -22,7 +24,7 @@ namespace AdvancedDealing.Economy
 
         public void AddXP(float amount)
         {
-            if (!ModConfig.RealisticMode) return;
+            if (!ModConfig.RealisticMode || _dealerManager.Level == MaxLevel) return;
 
             _dealerManager.Experience += amount;
             int calculatedLevel = CalculateLevel(_dealerManager.Experience);
@@ -32,7 +34,7 @@ namespace AdvancedDealing.Economy
                 LevelUp(calculatedLevel);
             }
 
-            Utils.Logger.Debug("LevelWatcher", $"XP added to {_dealerManager.Dealer.fullName}: {_dealerManager.Experience}");
+            Utils.Logger.Debug("LevelWatcher", $"XP added to {_dealerManager.Dealer.fullName}. Total: {_dealerManager.Experience}");
         }
 
         public void LevelUp(int level) 
@@ -60,26 +62,12 @@ namespace AdvancedDealing.Economy
             while (!levelFound)
             {
                 level++;
-                float neededExperience = (float)Math.Round(4 * Math.Pow(level + 1, 3) / 3);
+                float neededExperience = (float)Math.Round(ModConfig.ExperienceModifier * Math.Pow(level + 1, 3.2f) / 4);
                 if (experience < neededExperience)
                 {
                     levelFound = true;
                 }
             }
-
-            /*
-            for (int i = levels.Count - 1; !levelFound && i >= 0; i--)
-            {
-                if (levels[i].RequiredExperience < experience)
-                {
-                    level++;
-                }
-                else
-                {
-                    levelFound = true;
-                }
-            }
-            */
 
             return level;
         }

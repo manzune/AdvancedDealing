@@ -2,6 +2,8 @@
 using AdvancedDealing.Economy;
 using AdvancedDealing.Persistence;
 using MelonLoader;
+using System;
+using System.Reflection.Emit;
 
 [assembly: MelonInfo(typeof(AdvancedDealing.AdvancedDealing), $"{ModInfo.Name}", ModInfo.Version, ModInfo.Author, ModInfo.DownloadLink)]
 [assembly: MelonGame("TVGS", "Schedule I")]
