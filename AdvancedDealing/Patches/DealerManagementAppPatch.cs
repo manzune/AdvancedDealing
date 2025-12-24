@@ -42,6 +42,10 @@ namespace AdvancedDealing.Patches
                 {
                     UIModification.CustomersScrollView.AssignButton.SetActive(true);
                 }
+                else
+                {
+                    UIModification.CustomersScrollView.AssignButton.SetActive(false);
+                }
             }
         }
     }

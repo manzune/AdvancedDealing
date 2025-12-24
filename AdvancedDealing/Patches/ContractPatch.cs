@@ -16,9 +16,12 @@ namespace AdvancedDealing.Patches
         [HarmonyPatch("Complete")]
         public static void CompletePrefix(Contract __instance)
         {
-            if (__instance.Dealer  != null && DealerManager.DealerExists(__instance.Dealer))
+            Utils.Logger.Debug("Contract completed: " + __instance.Dealer);
+
+            if (__instance.Dealer != null && DealerManager.DealerExists(__instance.Dealer))
             {
-                // DealerManager dealerManager = DealerManager.GetManager(__instance.Dealer);
+                DealerManager dealerManager = DealerManager.GetInstance(__instance.Dealer);
+                dealerManager.LevelWatcher.AddXP(LevelWatcher.ContractCompleteXP);
             }
         }
     }

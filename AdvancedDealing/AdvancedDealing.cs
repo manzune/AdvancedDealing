@@ -1,4 +1,5 @@
 ﻿using AdvancedDealing;
+using AdvancedDealing.Economy;
 using AdvancedDealing.Persistence;
 using MelonLoader;
 
@@ -40,6 +41,7 @@ namespace AdvancedDealing
                 {
                     SaveManager = new();
                     SyncManager = new();
+
                     IsInitialized = true;
                 }
 

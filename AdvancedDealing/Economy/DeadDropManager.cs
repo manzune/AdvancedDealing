@@ -76,7 +76,7 @@ namespace AdvancedDealing.Economy
 
         public static void Load()
         {
-            for (int i = cache.Count; i > 0; i--)
+            for (int i = cache.Count - 1; i >= 0; i--)
             {
                 cache[i].Destroy();
             }

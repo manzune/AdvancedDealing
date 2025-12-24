@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
+
 
 #if IL2CPP
 using Il2CppScheduleOne.DevUtilities;
@@ -36,6 +38,8 @@ namespace AdvancedDealing.Economy
         public readonly ScheduleManager Schedule;
 
         public readonly ConversationManager Conversation;
+
+        public readonly LevelWatcher LevelWatcher;
 
         public string DeadDrop;
 
@@ -94,6 +98,8 @@ namespace AdvancedDealing.Economy
             Conversation.AddMessage(new NegotiateCut(this));
             Conversation.AddMessage(new AdjustSettings(this));
             Conversation.AddMessage(new Fired(this));
+
+            LevelWatcher = new(this);
         }
 
         public static List<DealerManager> GetAllInstances()
@@ -142,7 +148,7 @@ namespace AdvancedDealing.Economy
 
         public static void Load()
         {
-            for (int i = cache.Count; i > 0; i--)
+            for (int i = cache.Count - 1; i >= 0; i--)
             {
                 cache[i].Destroy();
             }
@@ -197,6 +203,14 @@ namespace AdvancedDealing.Economy
             {
                 FieldInfo localField = GetType().GetField(fields[i].Name);
                 localField?.SetValue(this, fields[i].GetValue(data));
+            }
+
+            if (ModConfig.RealisticMode)
+            {
+                int multiplicator = Level - 1;
+                MaxCustomers = LevelWatcher.MaxCustomersBase + (multiplicator * ModConfig.MaxCustomersPerLevel);
+                ItemSlots = LevelWatcher.ItemSlotsBase + (multiplicator * ModConfig.ItemSlotsPerLevel);
+                SpeedMultiplier = LevelWatcher.SpeedMultiplierBase + (multiplicator * ModConfig.SpeedIncreasePerLevel);
             }
         }
 

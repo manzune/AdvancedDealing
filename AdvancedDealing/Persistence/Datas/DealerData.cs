@@ -1,4 +1,6 @@
-﻿namespace AdvancedDealing.Persistence.Datas
+﻿using AdvancedDealing.Economy;
+
+namespace AdvancedDealing.Persistence.Datas
 {
     public class DealerData(string identifier) : DataBase(identifier)
     {
@@ -42,6 +44,15 @@
             NotifyOnCashDelivery = true;
             CashThreshold = 1500f;
             DaysUntilNextNegotiation = 0;
+
+            if (ModConfig.RealisticMode)
+            {
+                MaxCustomers = LevelWatcher.MaxCustomersBase;
+                ItemSlots = LevelWatcher.ItemSlotsBase;
+                Cut = 0.5f;
+                SpeedMultiplier = LevelWatcher.SpeedMultiplierBase;
+
+            }
         }
     }
 }
