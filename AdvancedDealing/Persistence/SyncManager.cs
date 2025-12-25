@@ -23,15 +23,15 @@ namespace AdvancedDealing.Persistence
 {
     public class SyncManager
     {
-        private bool _isRunning;
-
-        private bool _isHost;
-
-        private CSteamID _lobbySteamID;
-
         protected Callback<LobbyChatMsg_t> LobbyChatMsgCallback;
 
         protected Callback<LobbyDataUpdate_t> LobbyDataUpdateCallback;
+
+        private CSteamID _lobbySteamID;
+
+        private bool _isRunning;
+
+        private bool _isHost;
 
         public static bool IsActive => (Instance._isRunning && SaveManager.Instance.SavegameLoaded);
 

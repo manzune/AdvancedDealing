@@ -6,6 +6,9 @@ using MelonLoader;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using Newtonsoft.Json;
+using Il2CppScheduleOne.Persistence;
+using System.IO;
 
 #if IL2CPP
 using Il2CppScheduleOne.DevUtilities;
@@ -23,11 +26,24 @@ namespace AdvancedDealing.Persistence
 {
     public class SaveManager
     {
+        public static readonly JsonSerializerSettings JsonSerializerSettings = new()
+        {
+            NullValueHandling = NullValueHandling.Include,
+            MissingMemberHandling = MissingMemberHandling.Ignore,
+            Formatting = Formatting.Indented
+        };
+
+        public static SaveManager Instance { get; private set; }
+
         public SaveData SaveData { get; private set; }
+
+        public SaveData LastLoadedData { get; private set; }
+
+        public string LastLoadedDataString { get; private set; }
 
         public bool SavegameLoaded { get; private set; }
 
-        public static SaveManager Instance { get; private set; }
+        private static string FilePath => Path.Combine(Singleton<LoadManager>.Instance.ActiveSaveInfo.SavePath, $"{ModInfo.Name}.json");
 
         public SaveManager()
         {
@@ -80,7 +96,7 @@ namespace AdvancedDealing.Persistence
 
                 IEnumerator LoadRoutine()
                 {
-                    SaveData = DataManager.LoadFromFile();
+                    SaveData = LoadFromFile();
 
                     while (SaveData == null)
                     {
@@ -105,6 +121,44 @@ namespace AdvancedDealing.Persistence
                     UIModification.Load();
                 }
             }
+        }
+
+        public SaveData LoadFromFile()
+        {
+            SaveData data;
+            string text;
+
+            if (!File.Exists(FilePath))
+            {
+                string id = $"Savegame_{Singleton<LoadManager>.Instance.ActiveSaveInfo.SaveSlotNumber}";
+
+                data = new SaveData(id);
+                data.SetDefaults();
+
+                text = JsonConvert.SerializeObject(data, JsonSerializerSettings);
+            }
+            else
+            {
+                text = File.ReadAllText(FilePath);
+                data = JsonConvert.DeserializeObject<SaveData>(text, JsonSerializerSettings);
+            }
+
+            LastLoadedData = data;
+            LastLoadedDataString = text;
+
+            Utils.Logger.Msg($"Data for {data.Identifier} loaded");
+
+            return data;
+        }
+
+        public void SaveToFile(SaveData data)
+        {
+            data ??= LoadFromFile();
+
+            string text = JsonConvert.SerializeObject(data, JsonSerializerSettings);
+            File.WriteAllText(FilePath, text);
+
+            Utils.Logger.Msg($"Data for {data.Identifier} saved");
         }
 
         public void ClearSavegame()
@@ -171,7 +225,7 @@ namespace AdvancedDealing.Persistence
             if (SyncManager.IsNoSyncOrActiveAndHost)
             {
                 CollectData();
-                DataManager.SaveToFile(SaveData);
+                SaveToFile(SaveData);
             }
         }
     }

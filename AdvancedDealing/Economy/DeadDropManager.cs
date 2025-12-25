@@ -12,9 +12,9 @@ namespace AdvancedDealing.Economy
 {
     public class DeadDropManager
     {
-        private static readonly List<DeadDropManager> cache = [];
-
         public readonly DeadDrop DeadDrop;
+
+        private static readonly List<DeadDropManager> cache = [];
 
         public DeadDropManager(DeadDrop deadDrop)
         {

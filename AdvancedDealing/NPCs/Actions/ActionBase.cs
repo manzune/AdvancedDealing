@@ -21,13 +21,13 @@ namespace AdvancedDealing.NPCs.Actions
 
         public int StartTime;
 
+        public Action OnEnded;
+
         protected NPC NPC;
 
         protected ScheduleManager S1Schedule;
 
         protected NPCScheduleManager Schedule;
-
-        public Action OnEnded;
 
         protected int ConsecutivePathingFailures;
 

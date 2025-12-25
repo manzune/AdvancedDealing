@@ -14,17 +14,17 @@ namespace AdvancedDealing.Messaging
 {
     public class ConversationManager
     {
-        private static readonly List<ConversationManager> cache = [];
-
-        private readonly List<MessageBase> _messageList = [];
-
-        private readonly List<MessageBase> _sendableMessages = [];
-
         public readonly NPC NPC;
 
         public readonly MSGConversation Conversation;
 
         public bool UIPatched;
+
+        private static readonly List<ConversationManager> cache = [];
+
+        private readonly List<MessageBase> _messageList = [];
+
+        private readonly List<MessageBase> _sendableMessages = [];
 
         public ConversationManager(NPC npc)
         {

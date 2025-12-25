@@ -20,13 +20,13 @@ namespace AdvancedDealing.NPCs
 {
     public class ScheduleManager
     {
+        public readonly NPC NPC;
+
         private static readonly List<ScheduleManager> cache = [];
 
         private readonly List<ActionBase> _actionList = [];
 
         private readonly NPCScheduleManager _originalSchedule;
-
-        public readonly NPC NPC;
 
         public bool IsEnabled { get; protected set; }
 
