@@ -18,9 +18,9 @@ using ScheduleOne.Quests;
 
 namespace AdvancedDealing.NPCs.Actions
 {
-    public class DeliverCashSignal(DealerExtension dealerExtension) : SignalBase
+    public class DeliverCashSignal : SignalBase
     {
-        private readonly DealerExtension _dealer = dealerExtension;
+        private readonly DealerExtension _dealer;
 
         private DeadDropExtension _deadDrop;
 
@@ -30,12 +30,11 @@ namespace AdvancedDealing.NPCs.Actions
 
         private bool _deadDropIsFull = false;
 
-        protected override string ActionName => "DeliverCash";
+        protected override string ActionName => "Deliver Cash";
 
-        protected override void Awake()
+        public DeliverCashSignal(DealerExtension dealerExtension)
         {
-            base.Awake();
-
+            _dealer = dealerExtension;
             Priority = 90;
         }
 

@@ -49,7 +49,6 @@ namespace AdvancedDealing.Persistence
                 IEnumerator ClientLoadRoutine()
                 {
                     SaveData = new("temporary");
-                    SaveData.LoadDefaults();
 
                     DeadDropExtension.ExtendDeadDrops();
                     DealerExtension.ExtendDealers();

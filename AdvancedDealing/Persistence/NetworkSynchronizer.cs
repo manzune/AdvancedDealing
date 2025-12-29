@@ -33,17 +33,15 @@ namespace AdvancedDealing.Persistence
 
         private CSteamID _lobbySteamID;
 
-        private bool _isRunning;
+        private bool _isSyncing;
 
         private bool _isHost;
 
         public static NetworkSynchronizer Instance { get; private set; }
 
-        public static bool IsSyncing => Instance._isRunning;
+        public static bool IsSyncing => Instance._isSyncing;
 
         public static bool IsNoSyncOrHost => !IsSyncing || (IsSyncing && Instance._isHost);
-
-        public static bool IsActiveAndHost => IsSyncing && Instance._isHost;
 
         public static CSteamID LocalSteamID => Singleton<Lobby>.Instance.LocalPlayerID;
 
@@ -63,7 +61,7 @@ namespace AdvancedDealing.Persistence
         {
             _isHost = false;
             _lobbySteamID = Singleton<Lobby>.Instance.LobbySteamID;
-            _isRunning = true;
+            _isSyncing = true;
 
             Utils.Logger.Msg("NetworkSynchronizer", "Synchronization started");
         }
@@ -72,7 +70,7 @@ namespace AdvancedDealing.Persistence
         {
             _isHost = false;
             _lobbySteamID = CSteamID.Nil;
-            _isRunning = false;
+            _isSyncing = false;
 
             Utils.Logger.Msg("NetworkSynchronizer", "Synchronization stopped");
         }
@@ -205,15 +203,15 @@ namespace AdvancedDealing.Persistence
 
         private void OnLobbyChange()
         {
-            if (Singleton<Lobby>.Instance.IsInLobby && _isRunning && Singleton<Lobby>.Instance.LobbySteamID != _lobbySteamID)
+            if (Singleton<Lobby>.Instance.IsInLobby && _isSyncing && Singleton<Lobby>.Instance.LobbySteamID != _lobbySteamID)
             {
                 _lobbySteamID = Singleton<Lobby>.Instance.LobbySteamID;
             }
-            else if (Singleton<Lobby>.Instance.IsInLobby && !_isRunning)
+            else if (Singleton<Lobby>.Instance.IsInLobby && !_isSyncing)
             {
                 StartSyncing();
             }
-            else if (!Singleton<Lobby>.Instance.IsInLobby && _isRunning)
+            else if (!Singleton<Lobby>.Instance.IsInLobby && _isSyncing)
             {
                 StopSyncing();
             }

@@ -17,7 +17,7 @@ namespace AdvancedDealing.NPCs.Actions
     {
         public const int MaxConsecutivePathingFailures = 5;
 
-        public int Priority;
+        public int Priority = 0;
 
         public int StartTime;
 
@@ -25,9 +25,9 @@ namespace AdvancedDealing.NPCs.Actions
 
         protected NPC NPC;
 
-        protected Schedule S1Schedule;
+        protected Schedule Schedule;
 
-        protected NPCScheduleManager Schedule;
+        protected NPCScheduleManager S1Schedule;
 
         protected int ConsecutivePathingFailures;
 
@@ -35,27 +35,19 @@ namespace AdvancedDealing.NPCs.Actions
 
         protected virtual string ActionType => "Action";
 
+        protected virtual bool RemoveOnEnd => false;
+
         public bool IsActive { get; protected set; }
 
         public bool HasStarted { get; protected set; }
 
-        protected NPCMovement Movement =>
-            NPC.Movement;
-
-        public ActionBase()
-        {
-            Awake();
-        }
-
-        protected virtual void Awake()
-        {
-        }
+        protected NPCMovement Movement => NPC.Movement;
 
         public virtual void SetReferences(NPC npc, Schedule schedule, NPCScheduleManager originalSchedule, int StartTime = 0)
         {
             this.NPC = npc;
-            this.S1Schedule = schedule;
-            this.Schedule = originalSchedule;
+            this.Schedule = schedule;
+            this.S1Schedule = originalSchedule;
 
             if (StartTime != 0)
             {
@@ -67,7 +59,7 @@ namespace AdvancedDealing.NPCs.Actions
         {
             if (ShouldOverrideOriginalSchedule())
             {
-                Schedule.DisableSchedule();
+                S1Schedule.DisableSchedule();
             }
 
             NetworkSingleton<TimeManager>.Instance.onMinutePass -= new Action(MinPassed);
@@ -76,24 +68,24 @@ namespace AdvancedDealing.NPCs.Actions
             Utils.Logger.Debug($"{ActionType} \"{ActionName}\" for {NPC.name} started.");
 
             IsActive = true;
-            S1Schedule.ActiveAction = this;
+            Schedule.ActiveAction = this;
             HasStarted = true;
         }
 
         public void Destroy()
         {
-            if (S1Schedule.PendingActions.Contains(this))
+            if (Schedule.PendingActions.Contains(this))
             {
-                S1Schedule.PendingActions.Remove(this);
+                Schedule.PendingActions.Remove(this);
             }
 
             if (HasStarted)
             {
                 IsActive = false;
 
-                if (S1Schedule.ActiveAction == this)
+                if (Schedule.ActiveAction == this)
                 {
-                    S1Schedule.ActiveAction = null;
+                    Schedule.ActiveAction = null;
                 }
 
                 HasStarted = false;
@@ -109,45 +101,56 @@ namespace AdvancedDealing.NPCs.Actions
         {
             if (ShouldOverrideOriginalSchedule())
             {
-                Schedule.EnableSchedule();
+                S1Schedule.EnableSchedule();
             }
 
             Utils.Logger.Debug("ScheduleManager", $"{ActionType} \"{ActionName}\" for {NPC.name} ended.");
 
             IsActive = false;
-            S1Schedule.ActiveAction = null;
+            Schedule.ActiveAction = null;
             HasStarted = false;
+
+            if (RemoveOnEnd)
+            {
+                Schedule.RemoveAction(this);
+            }
 
             OnEnded?.Invoke();
         }
 
         public virtual void Interrupt()
         {
-            Schedule.EnableSchedule();
+            if (ShouldOverrideOriginalSchedule())
+            {
+                S1Schedule.EnableSchedule();
+            }
 
             Utils.Logger.Debug("ScheduleManager", $"{ActionType} \"{ActionName}\" for {NPC.name} interrupted.");
 
             IsActive = false;
-            S1Schedule.ActiveAction = null;
+            Schedule.ActiveAction = null;
 
-            if (!S1Schedule.PendingActions.Contains(this))
+            if (!Schedule.PendingActions.Contains(this))
             {
-                S1Schedule.PendingActions.Add(this);
+                Schedule.PendingActions.Add(this);
             }
         }
 
         public virtual void Resume()
         {
-            Schedule.DisableSchedule();
+            if (ShouldOverrideOriginalSchedule())
+            {
+                S1Schedule.DisableSchedule();
+            }
 
             Utils.Logger.Debug("ScheduleManager", $"{ActionType} \"{ActionName}\" for {NPC.name} resumed.");
 
             IsActive = true;
-            S1Schedule.ActiveAction = this;
+            Schedule.ActiveAction = this;
 
-            if (S1Schedule.PendingActions.Contains(this))
+            if (Schedule.PendingActions.Contains(this))
             {
-                S1Schedule.PendingActions.Remove(this);
+                Schedule.PendingActions.Remove(this);
             }
         }
 
@@ -174,7 +177,7 @@ namespace AdvancedDealing.NPCs.Actions
             }
             else
             {
-                Movement.SetDestination(pos, (Action<NPCMovement.WalkResult>)(res => WalkCallback(res)), maximumDistanceForSuccess: 1f);
+                Movement.SetDestination(pos, new Action<NPCMovement.WalkResult>(WalkCallback), maximumDistanceForSuccess: 1f);
             }
         }
 

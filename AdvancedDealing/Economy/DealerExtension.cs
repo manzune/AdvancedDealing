@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using GameKit.Utilities;
+
 
 
 #if IL2CPP
@@ -78,7 +80,7 @@ namespace AdvancedDealing.Economy
             PatchData(dealerData);
 
             NetworkSingleton<TimeManager>.Instance.onMinutePass += new Action(OnMinPassed);
-            NetworkSingleton<TimeManager>.Instance.onDayPass += new Action(OnDayPassed);
+            NetworkSingleton<TimeManager>.Instance.onSleepStart += new Action(OnSleepStart);
 
             Schedule = new(dealer);
             Schedule.AddAction(new DeliverCashSignal(this));
@@ -155,7 +157,7 @@ namespace AdvancedDealing.Economy
         public void Destroy()
         {
             NetworkSingleton<TimeManager>.Instance.onMinutePass -= new Action(OnMinPassed);
-            NetworkSingleton<TimeManager>.Instance.onDayPass -= new Action(OnDayPassed);
+            NetworkSingleton<TimeManager>.Instance.onSleepStart = new Action(OnSleepStart);
 
             Schedule.Destroy();
             Conversation.Destroy();
@@ -272,6 +274,29 @@ namespace AdvancedDealing.Economy
             Utils.Logger.Debug("DealerExtension", $"Dealer fired: {Dealer.fullName}");
         }
 
+        public void ChangeLoyality(float amount, bool shouldSync = false)
+        {
+            float newLoyality = Loyality + amount;
+            
+            if (newLoyality > 100)
+            {
+                Loyality = 100;
+            }
+            else if (newLoyality < 0)
+            {
+                Loyality = 0;
+            }
+            else
+            {
+                Loyality = newLoyality;
+            }
+
+            if (shouldSync && NetworkSynchronizer.IsSyncing)
+            {
+                NetworkSynchronizer.Instance.SendData(FetchData());
+            }
+        }
+
         private void UpdateDealer()
         {
             NPCInventory inventory = Dealer.Inventory;
@@ -333,11 +358,58 @@ namespace AdvancedDealing.Economy
             }
         }
 
-        private void OnDayPassed()
+        private void OnSleepStart()
         {
             if (DaysUntilNextNegotiation > 0)
             {
                 DaysUntilNextNegotiation--;
+            }
+
+            if (ModConfig.LoyalityMode && NetworkSynchronizer.IsNoSyncOrHost)
+            {
+                StartRandomLoyalityAction();
+            }
+        }
+
+        private void StartRandomLoyalityAction()
+        {
+            List<ActionBase> actions = [];
+
+            if (Loyality.InRange(0, 10))
+            {
+                actions.Add(new StealProductsAction(this, 40, 50));
+                actions.Add(new StealCashAction(this, 40, 50));
+            }
+            else if (Loyality.InRange(11, 30))
+            {
+                actions.Add(new StealProductsAction(this, 25, 40));
+                actions.Add(new StealCashAction(this, 25, 40));
+            }
+            else if (Loyality.InRange(31, 50))
+            {
+                actions.Add(new StealProductsAction(this, 10, 25));
+                actions.Add(new StealCashAction(this, 10, 25));
+            }
+            else if (Loyality.InRange(51, 70))
+            {
+                actions.Add(new StealProductsAction(this, 3, 10));
+                actions.Add(new StealCashAction(this, 3, 10));
+            }
+            else if (Loyality.InRange(71, 90))
+            {
+                actions.Add(new StealProductsAction(this, 1, 3));
+                actions.Add(new StealCashAction(this, 1, 3));
+            }
+
+            if (actions.Count == 1)
+            {
+                Schedule.AddAction(actions[0]);
+            }
+            else if (actions.Count > 1)
+            {
+                int i = UnityEngine.Random.Range(0, actions.Count - 1);
+
+                Schedule.AddAction(actions[i]);
             }
         }
     }

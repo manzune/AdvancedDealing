@@ -37,7 +37,6 @@ namespace AdvancedDealing.Persistence
                 string id = $"Savegame_{Singleton<LoadManager>.Instance.ActiveSaveInfo.SaveSlotNumber}";
 
                 data = new SaveDataContainer(id);
-                data.LoadDefaults();
 
                 text = JsonConvert.SerializeObject(data, JsonSerializerSettings);
             }
