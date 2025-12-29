@@ -74,7 +74,7 @@ namespace AdvancedDealing.Messaging.Messages
 
         private static bool CalculateResponse(float oldCut, float newCut)
         {
-            float baseChance = ModConfig.NegotiationSuccessModifier;
+            float baseChance = 50f;
             float difference = Math.Abs(oldCut - newCut);
             float chance = (baseChance - (baseChance * (difference * 100) / 100)) / 100;
 
