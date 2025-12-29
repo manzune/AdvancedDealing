@@ -8,6 +8,7 @@
     <File Path="local.build.props" />
     <File Path="local.empty.props" />
     <File Path="README.md" />
+    <File Path="Todo.txt" />
   </Folder>
   <Project Path="AdvancedDealing/AdvancedDealing.csproj" />
 </Solution>
