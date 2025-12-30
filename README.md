@@ -3,7 +3,6 @@
 [![GitHub release](https://img.shields.io/github/v/release/manzune/AdvancedDealing?include_prereleases&sort=semver)](https://github.com/manzune/AdvancedDealing/releases)
 
 A MelonLoader mod for Schedule1 that changes your dealers behavior, let's you communicate with them via messages app, automates the cash collection process and makes your life (hopefully) a lot easier.
-I couldn't find a dealer mod that meets my expectations - so i created my own one. After many try and error i wanted to share my first mod with other players who like Schedule1.
 
 ## Features
 
@@ -11,6 +10,7 @@ I couldn't find a dealer mod that meets my expectations - so i created my own on
 
 * Cash delivery to selected dead drops or via transaction
 * Communicate with dealers via messaging app
+* Loyality mode (WIP)
 * Allow more customers per dealer
 * Add item slots to your dealers
 * Negotiate cut %
@@ -26,7 +26,7 @@ I couldn't find a dealer mod that meets my expectations - so i created my own on
 * Change dealer signing fee
 * Product pickup at dead drops
 * Customizable quality bonus
-* New deal related actions and behavior for dealers and customers
+* More deal related actions and behavior for dealers and customers
 
 <sub>Any ideas? Let me know!</sub>
 
@@ -36,18 +36,31 @@ If you're running into any bugs or issues using this mod, use the [Issues sectio
 
 # Set Up
 
-### Installation
+### Manual Installation
 1. Install [MelonLoader﻿](https://melonwiki.xyz) Version 0.7 or higher
 2. Download the latest release of this mod
-3. Unzip the archive and copy the *DLL file* to the games **Mods** folder
+3. Unzip the archive and copy the *DLL file* from the archives **Mods** folder to the games **Mods** folder
 4. Launch the game and enjoy
 
-#### Which .dll files are included?
+#### Which DLL file to choose?
 
  - For **Il2Cpp** (Default): ``AdvancedDealing.Il2Cpp.dll``
  - For **Mono** (Alternate): ``AdvancedDealing.Mono.dll``
 
 ### Configuration
 
-Config files for general settings will be generated after the first launch after installation and can be found inside the **UserData** folder.
+Config files for general settings will be generated after the first game launch after installation and can be found inside the **UserData** folder.
 Savegame related settings can be applied ingame by using the messaging app on your phone.
+
+# Loyality Mode
+
+The loyality mode is still WIP and some features are not implemented at this state. Use at your own risk! It's **highly recommended** to test it in a fresh savegame.
+
+### Features
+
+* Being robbed decreases loyality
+* Being fired decreases loyality
+* To much deals per day decreases loyality (Nobody likes to work too hard)
+* Bonus payed increases loyality
+* Higher loyality means: More customers to assign and more workspeed
+* Lower loyality means: The dealer could steal products or money and if you took it too far he maybe will resign
