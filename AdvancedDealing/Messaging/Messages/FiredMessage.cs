@@ -18,7 +18,7 @@ namespace AdvancedDealing.Messaging.Messages
     {
         private readonly DealerExtension _dealer = dealerExtension;
 
-        public override string Text => "You are no longer my dealer";
+        public override string Text => "You are fired";
 
         public override bool DisableDefaultSendBehaviour => true;
 

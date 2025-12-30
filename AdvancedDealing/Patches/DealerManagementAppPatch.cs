@@ -35,6 +35,10 @@ namespace AdvancedDealing.Patches
                     deadDropName = deadDrop.DeadDrop.DeadDropName;
                 }
 
+                // Loyality Mode
+                UIBuilder.LoyalityDisplay.ValueLabel.text = (dealerExtension.Loyality / 100).ToString("P0");
+                UIBuilder.ChangeLoyalityModeUI();
+
                 UIBuilder.DeadDropSelector.ButtonLabel.text = deadDropName;
                 UIBuilder.CustomersScrollView.TitleLabel.text = $"Assigned Customers ({dealerExtension.Dealer.AssignedCustomers.Count}/{dealerExtension.MaxCustomers})";
 

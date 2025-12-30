@@ -20,7 +20,11 @@ namespace AdvancedDealing.UI
 
         public GameObject Container;
 
+        public GameObject Viewport;
+
         public GameObject AssignButton;
+
+        public RectTransform CustomerTitle;
 
         public List<GameObject> CustomerEntries = [];
 
@@ -42,16 +46,16 @@ namespace AdvancedDealing.UI
             transform.anchoredPosition = Vector2.zero;
             transform.sizeDelta = new Vector2(0, height);
 
-            GameObject viewport = new("Viewport");
-            RectTransform transform2 = viewport.AddComponent<RectTransform>();
+            Viewport = new("Viewport");
+            RectTransform transform2 = Viewport.AddComponent<RectTransform>();
             transform2.SetParent(transform, false);
             transform2.anchorMin = new Vector2(0f, 0f);
             transform2.anchorMax = new Vector2(1f, 0f);
             transform2.pivot = new Vector2(0.5f, 0f);
             transform2.anchoredPosition = Vector2.zero;
             transform2.sizeDelta = new Vector2(0, height);
-            viewport.AddComponent<Mask>().showMaskGraphic = false;
-            viewport.AddComponent<Image>();
+            Viewport.AddComponent<Mask>().showMaskGraphic = false;
+            Viewport.AddComponent<Image>();
 
             GameObject customers = PlayerSingleton<DealerManagementApp>.Instance.CustomerEntries.Last().parent.gameObject;
             RectTransform transform3 = customers.GetComponent<RectTransform>();
@@ -76,11 +80,11 @@ namespace AdvancedDealing.UI
             scrollRect.scrollSensitivity = 8f;
 
             // Move customer title down for more space
-            RectTransform transform4 = Container.transform.Find("CustomerTitle").GetComponent<RectTransform>();
-            transform4.sizeDelta = new Vector2(transform4.sizeDelta.x, transform4.sizeDelta.y - 15);
-            transform4.offsetMax = new Vector2(transform4.offsetMax.x, transform4.offsetMax.y - 15);
+            CustomerTitle = Container.transform.Find("CustomerTitle").GetComponent<RectTransform>();
+            CustomerTitle.sizeDelta = new Vector2(CustomerTitle.sizeDelta.x, CustomerTitle.sizeDelta.y - 15);
+            CustomerTitle.offsetMax = new Vector2(CustomerTitle.offsetMax.x, CustomerTitle.offsetMax.y - 15);
 
-            TitleLabel = transform4.GetComponent<Text>();
+            TitleLabel = CustomerTitle.GetComponent<Text>();
             AssignButton = PlayerSingleton<DealerManagementApp>.Instance.AssignCustomerButton.gameObject;
 
             CreateCustomerEntries();

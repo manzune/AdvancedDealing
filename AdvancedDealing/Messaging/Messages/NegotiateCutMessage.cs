@@ -32,7 +32,7 @@ namespace AdvancedDealing.Messaging.Messages
         {
             float current = (float)Math.Round(_dealer.Cut, 2);
 
-            UIBuilder.SliderPopup.Open($"Negotiate Cut % ({_dealer.Dealer.name})", $"Current: {current:n2}", current, 0f, 1f, 0.01f, 2, OnSend, null, "{0:P0}");
+            UIBuilder.SliderPopup.Open($"Negotiate Cut % ({_dealer.Dealer.name})", $"Current: {current:P0}", current, 0f, 1f, 0.01f, 2, OnSend, null, "{0:P0}");
         }
 
         private void OnSend(float value)

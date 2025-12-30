@@ -20,7 +20,7 @@ namespace AdvancedDealing.Messaging.Messages
     {
         private readonly DealerExtension _dealer = dealerExtension;
 
-        public override string Text => "I need to access your inventory";
+        public override string Text => "Access inventory";
 
         public override bool DisableDefaultSendBehaviour => true;
 
