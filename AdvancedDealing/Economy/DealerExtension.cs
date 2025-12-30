@@ -63,6 +63,8 @@ namespace AdvancedDealing.Economy
 
         public int DaysUntilNextNegotiation;
 
+        public int DailyContractCount;
+
         public bool HasChanged;
 
         private DialogueController.DialogueChoice _payBonusChoice;

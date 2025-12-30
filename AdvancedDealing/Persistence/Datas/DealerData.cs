@@ -20,6 +20,8 @@
 
         public int DaysUntilNextNegotiation;
 
+        public int DailyContractCount;
+
         public DealerData(string identifier, bool loadDefaults = false) : base(identifier)
         {
             if (loadDefaults)
@@ -39,6 +41,7 @@
             DeliverCash = false;
             CashThreshold = 1500f;
             DaysUntilNextNegotiation = 0;
+            DailyContractCount = 0;
         }
     }
 }
