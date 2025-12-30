@@ -35,9 +35,9 @@ namespace AdvancedDealing.Economy
 
         public readonly Dealer Dealer;
 
-        public readonly Schedule Schedule;
+        public Schedule Schedule;
 
-        public readonly Conversation Conversation;
+        public Conversation Conversation;
 
         public string DeadDrop;
 
@@ -66,7 +66,7 @@ namespace AdvancedDealing.Economy
         public DealerExtension(Dealer dealer)
         {
             Dealer = dealer;
-            DealerDataContainer dealerData = SaveModifier.Instance.SaveData.Dealers.Find(x => x.Identifier.Contains(dealer.GUID.ToString()));
+            DealerData dealerData = SaveModifier.Instance.SaveData.Dealers.Find(x => x.Identifier.Contains(dealer.GUID.ToString()));
 
             if (dealerData == null)
             {
@@ -77,19 +77,26 @@ namespace AdvancedDealing.Economy
 
             PatchData(dealerData);
 
-            NetworkSingleton<TimeManager>.Instance.onMinutePass += new Action(OnMinPassed);
-            NetworkSingleton<TimeManager>.Instance.onSleepStart += new Action(OnSleepStart);
+            Initialize();
+        }
 
-            Schedule = new(dealer);
-            Schedule.AddAction(new DeliverCashSignal(this));
+        public static DealerExtension GetExtension(Dealer dealer, bool includeFired = false) => GetExtension(dealer.GUID.ToString(), includeFired);
 
-            Conversation = new(dealer);
-            Conversation.AddSendableMessage(new EnableDeliverCashMessage(this));
-            Conversation.AddSendableMessage(new DisableDeliverCashMessage(this));
-            Conversation.AddSendableMessage(new AccessInventoryMessage(this));
-            Conversation.AddSendableMessage(new NegotiateCutMessage(this));
-            Conversation.AddSendableMessage(new AdjustSettingsMessage(this));
-            Conversation.AddSendableMessage(new FiredMessage(this));
+        public static DealerExtension GetExtension(string guid, bool includeFired = false)
+        {
+            if (guid == null)
+            {
+                return null;
+            }
+
+            DealerExtension dealer = cache.Find(x => x.Dealer.GUID.ToString().Contains(guid));
+
+            if (!includeFired && dealer.IsFired)
+            {
+                return null;
+            }
+
+            return dealer;
         }
 
         public static List<DealerExtension> GetAllExtensions()
@@ -97,25 +104,25 @@ namespace AdvancedDealing.Economy
             return cache;
         }
 
-        public static DealerExtension GetExtension(Dealer dealer) => GetExtension(dealer.GUID.ToString());
-
-        public static DealerExtension GetExtension(string guid)
-        {
-            if (guid == null)
-            {
-                return null;
-            }
-
-            return cache.Find(x => x.Dealer.GUID.ToString().Contains(guid));
-        }
-
         public static void CreateExtension(Dealer dealer)
         {
-            if (dealer.IsRecruited && Dealer.AllPlayerDealers.Contains(dealer) && !ExtensionExists(dealer))
+            if (dealer.IsRecruited && Dealer.AllPlayerDealers.Contains(dealer))
             {
-                cache.Add(new(dealer));
-
-                Utils.Logger.Debug("DeadDropExtension", $"Extension created for dealer: {dealer.fullName}");
+                if (!ExtensionExists(dealer))
+                {
+                    cache.Add(new(dealer));
+                    Utils.Logger.Debug("DeadDropExtension", $"Extension created for dealer: {dealer.fullName}");
+                }
+                else
+                {
+                    DealerExtension dealer2 = GetExtension(dealer, true);
+                    if (dealer2.IsFired)
+                    {
+                        dealer2.IsFired = false;
+                        dealer2.Initialize();
+                        Utils.Logger.Debug("DeadDropExtension", $"Extension resumed for dealer: {dealer.fullName}");
+                    }
+                }
             }
         }
 
@@ -147,12 +154,24 @@ namespace AdvancedDealing.Economy
             Dealer.onDealerRecruited += new Action<Dealer>(OnDealerRecruited);
         }
 
+        public static List<DealerData> GetAllDealerData()
+        {
+            List<DealerData> dataCollection = [];
+
+            foreach (DealerExtension dealer in cache)
+            {
+                dataCollection.Add(dealer.FetchData());
+            }
+
+            return dataCollection;
+        }
+
         private static void OnDealerRecruited(Dealer dealer)
         {
             CreateExtension(dealer);
         }
 
-        public void Destroy()
+        public void Destroy(bool clearCache = true)
         {
             NetworkSingleton<TimeManager>.Instance.onMinutePass -= new Action(OnMinPassed);
             NetworkSingleton<TimeManager>.Instance.onSleepStart = new Action(OnSleepStart);
@@ -160,13 +179,33 @@ namespace AdvancedDealing.Economy
             Schedule.Destroy();
             Conversation.Destroy();
 
-            cache.Remove(this);
+            if (clearCache)
+            {
+                cache.Remove(this);
+            }
         }
 
-        public DealerDataContainer FetchData()
+        private void Initialize()
         {
-            DealerDataContainer data = new(Dealer.GUID.ToString());
-            FieldInfo[] fields = typeof(DealerDataContainer).GetFields();
+            NetworkSingleton<TimeManager>.Instance.onMinutePass += new Action(OnMinPassed);
+            NetworkSingleton<TimeManager>.Instance.onSleepStart += new Action(OnSleepStart);
+
+            Schedule = new(Dealer);
+            Schedule.AddAction(new DeliverCashSignal(this));
+
+            Conversation = new(Dealer);
+            Conversation.AddSendableMessage(new EnableDeliverCashMessage(this));
+            Conversation.AddSendableMessage(new DisableDeliverCashMessage(this));
+            Conversation.AddSendableMessage(new AccessInventoryMessage(this));
+            Conversation.AddSendableMessage(new NegotiateCutMessage(this));
+            Conversation.AddSendableMessage(new AdjustSettingsMessage(this));
+            Conversation.AddSendableMessage(new FiredMessage(this));
+        }
+
+        public DealerData FetchData()
+        {
+            DealerData data = new(Dealer.GUID.ToString());
+            FieldInfo[] fields = typeof(DealerData).GetFields();
 
             for (int i = 0; i < fields.Length; i++)
             {
@@ -180,13 +219,13 @@ namespace AdvancedDealing.Economy
             return data;
         }
 
-        public void PatchData(DealerDataContainer data)
+        public void PatchData(DealerData data)
         {
-            DealerDataContainer oldData = FetchData();
+            DealerData oldData = FetchData();
 
             if (!oldData.IsEqual(data))
             {
-                FieldInfo[] fields = typeof(DealerDataContainer).GetFields();
+                FieldInfo[] fields = typeof(DealerData).GetFields();
 
                 for (int i = 0; i < fields.Length; i++)
                 {
@@ -265,9 +304,13 @@ namespace AdvancedDealing.Economy
                 NetworkSynchronizer.Instance.SendMessage("dealer_fired", Dealer.GUID.ToString());
             }
 
+            if (ModConfig.LoyalityMode)
+            {
+                ChangeLoyality(-30);
+            }
+
             SendMessage("Hmpf okay, get in touch if you need me", false, true, 0.5f);
-            SaveModifier.Instance.UpdateData(FetchData());
-            Destroy();
+            Destroy(false);
 
             Utils.Logger.Debug("DealerExtension", $"Dealer fired: {Dealer.fullName}");
         }

@@ -6,6 +6,8 @@ using MelonLoader;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using System.IO;
+
 
 #if IL2CPP
 using Il2CppScheduleOne.DevUtilities;
@@ -25,9 +27,11 @@ namespace AdvancedDealing.Persistence
     {
         public static SaveModifier Instance { get; private set; }
 
-        public SaveDataContainer SaveData { get; private set; }
+        public DataWrapper SaveData { get; private set; }
 
         public bool SavegameLoaded { get; private set; }
+
+        private static string FilePath => Path.Combine(Singleton<LoadManager>.Instance.ActiveSaveInfo.SavePath, $"{ModInfo.Name}.json");
 
         public SaveModifier()
         {
@@ -44,56 +48,70 @@ namespace AdvancedDealing.Persistence
 
             if (Singleton<Lobby>.Instance.IsInLobby && !Singleton<Lobby>.Instance.IsHost)
             {
-                MelonCoroutines.Start(ClientLoadRoutine());
+                LoadModificationsAsClient();
 
-                IEnumerator ClientLoadRoutine()
-                {
-                    SaveData = new("temporary");
-
-                    DeadDropExtension.ExtendDeadDrops();
-                    DealerExtension.ExtendDealers();
-
-                    yield return new WaitForSecondsRealtime(2f);
-
-                    SavegameLoaded = true;
-
-                    NetworkSynchronizer.Instance.SendMessage("data_request");
-
-                    UIBuilder.Build();
-
-                    Utils.Logger.Msg("Savegame modifications successfully injected");
-                }
+                return;
             }
-            else
+
+            MelonCoroutines.Start(LoadRoutine());
+
+            IEnumerator LoadRoutine()
             {
-                MelonCoroutines.Start(LoadRoutine());
-
-                IEnumerator LoadRoutine()
+                if (!ReaderWriter.LoadFromFile<DataWrapper>(FilePath, out var data))
                 {
-                    SaveData = null;
-                    SaveData = DataReaderWriter.LoadFromFile();
-
-                    while (SaveData == null)
+                    SaveData = new()
                     {
-                        yield return new WaitForSecondsRealtime(2f);
-                    }
-
-                    DeadDropExtension.ExtendDeadDrops();
-                    DealerExtension.ExtendDealers();
-
-                    yield return new WaitForSecondsRealtime(2f);
-
-                    SavegameLoaded = true;
-
-                    if (NetworkSynchronizer.IsSyncing)
-                    {
-                        NetworkSynchronizer.Instance.SetAsHost();
-                    }
-
-                    UIBuilder.Build();
-
-                    Utils.Logger.Msg("Savegame modifications successfully injected");
+                        SaveName = $"savegame_{Singleton<LoadManager>.Instance.ActiveSaveInfo.SaveSlotNumber}",
+                        Dealers = []
+                    };
                 }
+                else
+                {
+                    SaveData = data;
+                }
+
+                DeadDropExtension.ExtendDeadDrops();
+                DealerExtension.ExtendDealers();
+
+                yield return new WaitForSecondsRealtime(2f);
+
+                SavegameLoaded = true;
+
+                if (NetworkSynchronizer.IsSyncing)
+                {
+                    NetworkSynchronizer.Instance.SetAsHost();
+                }
+
+                UIBuilder.Build();
+
+                Utils.Logger.Msg("Savegame modifications successfully injected");
+            }
+        }
+
+        private void LoadModificationsAsClient()
+        {
+            MelonCoroutines.Start(ClientLoadRoutine());
+
+            IEnumerator ClientLoadRoutine()
+            {
+                SaveData = new()
+                {
+                    SaveName = "temporary",
+                    Dealers = []
+                };
+
+                DeadDropExtension.ExtendDeadDrops();
+                DealerExtension.ExtendDealers();
+
+                yield return new WaitForSecondsRealtime(2f);
+
+                SavegameLoaded = true;
+
+                NetworkSynchronizer.Instance.SendMessage("data_request");
+
+                UIBuilder.Build();
+
+                Utils.Logger.Msg("Savegame modifications successfully injected");
             }
         }
 
@@ -102,69 +120,22 @@ namespace AdvancedDealing.Persistence
             UIBuilder.Reset();
             Schedule.ClearAllSchedules();
 
-            SaveData = null;
             SavegameLoaded = false;
 
             Utils.Logger.Msg($"Savegame modifications cleared");
-        }
-
-        public void UpdateSaveData(SaveDataContainer saveData, bool isSaveDataRequest = false)
-        {
-            if (!isSaveDataRequest)
-            {
-                foreach (DealerDataContainer dealerData in saveData.Dealers)
-                {
-                    DealerExtension dealer = DealerExtension.GetExtension(dealerData.Identifier);
-                    dealer.PatchData(dealerData);
-                    dealer.HasChanged = true;
-                }
-            }
-
-            SaveData = saveData;
-        }
-
-        public void CollectData()
-        {
-            foreach (Dealer dealer in Dealer.AllPlayerDealers)
-            {
-                if (DealerExtension.ExtensionExists(dealer))
-                {
-                    DealerExtension dealerExtension = DealerExtension.GetExtension(dealer);
-                    DealerDataContainer dealerData = SaveData.Dealers.Find(x => x.Identifier.Contains(dealer.GUID.ToString()));
-
-                    if (dealerData != null)
-                    {
-                        SaveData.Dealers.Remove(dealerData);
-                    }
-
-                    SaveData.Dealers.Add(dealerExtension.FetchData());
-                }
-            }
-        }
-
-        public void UpdateData(DealerDataContainer dealerData = null)
-        {
-            if (dealerData != null)
-            {
-                DealerDataContainer oldDealerData = SaveData.Dealers.Find(x => x.Identifier.Contains(dealerData.Identifier));
-
-                if (oldDealerData != null)
-                {
-                    SaveData.Dealers.Remove(oldDealerData);
-                }
-
-                SaveData.Dealers.Add(dealerData);
-
-                Utils.Logger.Debug("SaveManager", $"Dealer data updated: {dealerData.Identifier}");
-            }
         }
 
         private void OnSaveComplete()
         {
             if (NetworkSynchronizer.IsNoSyncOrHost)
             {
-                CollectData();
-                DataReaderWriter.SaveToFile(SaveData);
+                DataWrapper wrapper = new()
+                {
+                    SaveName = $"savegame_{Singleton<LoadManager>.Instance.ActiveSaveInfo.SaveSlotNumber}",
+                    Dealers = DealerExtension.GetAllDealerData()
+                };
+
+                ReaderWriter.SaveToFile(FilePath, wrapper);
             }
         }
     }

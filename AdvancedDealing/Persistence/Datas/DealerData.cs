@@ -1,6 +1,6 @@
 ﻿namespace AdvancedDealing.Persistence.Datas
 {
-    public class DealerDataContainer : DataContainer
+    public class DealerData : DataBase
     {
         public string DeadDrop;
 
@@ -22,7 +22,7 @@
 
         public int DaysUntilNextNegotiation;
 
-        public DealerDataContainer(string identifier, bool loadDefaults = false) : base(identifier)
+        public DealerData(string identifier, bool loadDefaults = false) : base(identifier)
         {
             if (loadDefaults)
             {

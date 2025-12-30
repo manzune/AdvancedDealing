@@ -81,7 +81,7 @@ namespace AdvancedDealing.Persistence
             Utils.Logger.Debug("NetworkSynchronizer", "Set as host");
         }
 
-        public void SendData(DataContainer data) => SendData(data.DataType, data.Identifier, JsonConvert.SerializeObject(data, DataReaderWriter.JsonSerializerSettings));
+        public void SendData(DataBase data) => SendData(data.DataType, data.Identifier, JsonConvert.SerializeObject(data, ReaderWriter.JsonSerializerSettings));
 
         public void SendData(string dataType, string identifier, string dataString)
         {
@@ -135,7 +135,7 @@ namespace AdvancedDealing.Persistence
 
                         if (dealerExtension != null)
                         {
-                            DealerDataContainer dealerData = JsonConvert.DeserializeObject<DealerDataContainer>(dataString);
+                            DealerData dealerData = JsonConvert.DeserializeObject<DealerData>(dataString);
 
                             dealerExtension.PatchData(dealerData);
 
@@ -183,7 +183,7 @@ namespace AdvancedDealing.Persistence
 
                         if (_isHost)
                         {
-                            foreach (DealerDataContainer data in SaveModifier.Instance.SaveData.Dealers)
+                            foreach (DealerData data in SaveModifier.Instance.SaveData.Dealers)
                             {
                                 SendData(data);
                             }

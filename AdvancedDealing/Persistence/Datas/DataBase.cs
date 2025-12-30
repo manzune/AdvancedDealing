@@ -11,7 +11,7 @@ using FishNet.Broadcast;
 
 namespace AdvancedDealing.Persistence.Datas
 {
-    public abstract class DataContainer(string identifier)
+    public abstract class DataBase(string identifier)
     {
         public virtual string DataType => GetType().Name;
 
