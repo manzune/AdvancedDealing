@@ -492,6 +492,7 @@ namespace AdvancedDealing.Economy
 
             if (Loyality.InRange(0, 10))
             {
+                actions.Add(new ResignAction(this));
                 actions.Add(new StealProductsAction(this, 40, 50));
                 actions.Add(new StealCashAction(this, 40, 50));
             }
