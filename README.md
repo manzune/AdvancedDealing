@@ -1,6 +1,6 @@
 # Advanced Dealing
 
-[![GitHub release](https://img.shields.io/github/v/release/manzune/AdvancedDealing?include_prereleases&sort=semver)](https://github.com/manzune/AdvancedDealing/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/manzune/AdvancedDealing?include_prereleases&sort=semver)](https://github.com/manzune/AdvancedDealing/releases)
 
 A MelonLoader mod for Schedule1 that changes your dealers behavior, let's you communicate with them via messages app, automates the cash collection process and makes your life (hopefully) a lot easier.
 
