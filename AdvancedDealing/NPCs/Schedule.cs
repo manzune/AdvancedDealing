@@ -2,16 +2,16 @@
 using System;
 using System.Collections.Generic;
 using AdvancedDealing.Persistence;
-
+using MelonLoader;
+using UnityEngine;
+using System.Collections;
 
 #if IL2CPP
-using Il2CppFishNet;
 using Il2CppScheduleOne.DevUtilities;
 using Il2CppScheduleOne.GameTime;
 using Il2CppScheduleOne.Networking;
 using Il2CppScheduleOne.NPCs;
 #elif MONO
-using FishNet;
 using ScheduleOne.DevUtilities;
 using ScheduleOne.GameTime;
 using ScheduleOne.Networking;
@@ -49,10 +49,17 @@ namespace AdvancedDealing.NPCs
 
         public void Start()
         {
-            Enable();
+            MelonCoroutines.Start(StartRoutine());
 
-            NetworkSingleton<TimeManager>.Instance.onMinutePass -= new Action(MinPassed);
-            NetworkSingleton<TimeManager>.Instance.onMinutePass += new Action(MinPassed);
+            IEnumerator StartRoutine()
+            {
+                yield return new WaitForSecondsRealtime(2f);
+
+                Enable();
+
+                NetworkSingleton<TimeManager>.Instance.onMinutePass -= new Action(MinPassed);
+                NetworkSingleton<TimeManager>.Instance.onMinutePass += new Action(MinPassed);
+            }
         }
 
         public void Enable()
@@ -117,7 +124,7 @@ namespace AdvancedDealing.NPCs
 
                     if (ActiveAction == null)
                     {
-                        if (!actionToStart.ShouldOverrideOriginalSchedule() || S1Schedule.ActiveAction == null || (S1Schedule.ActiveAction != null && actionToStart.Priority > S1Schedule.ActiveAction.Priority))
+                        if (!actionToStart.OverrideOriginalSchedule || S1Schedule.ActiveAction == null || (S1Schedule.ActiveAction != null && actionToStart.Priority > S1Schedule.ActiveAction.Priority))
                         {
                             StartAction(actionToStart);
                         }

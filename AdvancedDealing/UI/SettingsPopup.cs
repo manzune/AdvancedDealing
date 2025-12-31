@@ -174,6 +174,7 @@ namespace AdvancedDealing.UI
 
             CreateInputField(InputField.ContentType.IntegerNumber, "MaxCustomers", "Max Customers", 0, 24);
             CreateInputField(InputField.ContentType.IntegerNumber, "ItemSlots", "Item Slots", 0, 20);
+            CreateInputField(InputField.ContentType.DecimalNumber, "Cut", "Cut %", 0, 1);
             CreateInputField(InputField.ContentType.DecimalNumber, "SpeedMultiplier", "Speed Multiplier", 0, 0);
 
             Utils.Logger.Debug("SettingsPopup", "Settings popup UI created");

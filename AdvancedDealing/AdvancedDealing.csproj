@@ -17,7 +17,7 @@
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
 		<LangVersion>latest</LangVersion>
-		<Version>1.0.0</Version>
+		<Version>1.1.0</Version>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Il2Cpp'">

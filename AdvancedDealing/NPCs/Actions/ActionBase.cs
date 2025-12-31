@@ -31,17 +31,19 @@ namespace AdvancedDealing.NPCs.Actions
 
         protected int ConsecutivePathingFailures;
 
-        protected virtual string ActionName => "ActionName";
-
-        protected virtual string ActionType => "Action";
-
-        protected virtual bool RemoveOnEnd => false;
+        public virtual bool OverrideOriginalSchedule => false;
 
         public bool IsActive { get; protected set; }
 
         public bool HasStarted { get; protected set; }
 
         protected NPCMovement Movement => NPC.Movement;
+
+        protected virtual string ActionName => "ActionName";
+
+        protected virtual string ActionType => "Action";
+
+        protected virtual bool RemoveOnEnd => false;
 
         public virtual void SetReferences(NPC npc, Schedule schedule, int startTime = 0)
         {
@@ -56,7 +58,7 @@ namespace AdvancedDealing.NPCs.Actions
 
         public virtual void Start()
         {
-            if (ShouldOverrideOriginalSchedule())
+            if (OverrideOriginalSchedule)
             {
                 S1Schedule.DisableSchedule();
             }
@@ -98,7 +100,7 @@ namespace AdvancedDealing.NPCs.Actions
 
         public virtual void End()
         {
-            if (ShouldOverrideOriginalSchedule())
+            if (OverrideOriginalSchedule)
             {
                 S1Schedule.EnableSchedule();
             }
@@ -119,7 +121,7 @@ namespace AdvancedDealing.NPCs.Actions
 
         public virtual void Interrupt()
         {
-            if (ShouldOverrideOriginalSchedule())
+            if (OverrideOriginalSchedule)
             {
                 S1Schedule.EnableSchedule();
             }
@@ -137,7 +139,7 @@ namespace AdvancedDealing.NPCs.Actions
 
         public virtual void Resume()
         {
-            if (ShouldOverrideOriginalSchedule())
+            if (OverrideOriginalSchedule)
             {
                 S1Schedule.DisableSchedule();
             }
@@ -155,15 +157,10 @@ namespace AdvancedDealing.NPCs.Actions
 
         public virtual void MinPassed() 
         {
-            if (ShouldOverrideOriginalSchedule() && IsActive && S1Schedule.ScheduleEnabled)
+            if (OverrideOriginalSchedule && IsActive && S1Schedule.ScheduleEnabled)
             {
                 S1Schedule.DisableSchedule();
             }
-        }
-
-        public virtual bool ShouldOverrideOriginalSchedule ()
-        {
-            return true;
         }
 
         public virtual bool ShouldStart() 

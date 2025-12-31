@@ -16,7 +16,11 @@
 
         public bool DeliverCash;
 
+        public bool PickupProducts;
+
         public float CashThreshold;
+
+        public int ProductThreshold;
 
         public int DaysUntilNextNegotiation;
 
@@ -39,7 +43,9 @@
             SpeedMultiplier = 1f;
             Loyality = 50f;
             DeliverCash = false;
+            PickupProducts = false;
             CashThreshold = 1500f;
+            ProductThreshold = 20;
             DaysUntilNextNegotiation = 0;
             DailyContractCount = 0;
         }

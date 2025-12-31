@@ -4,8 +4,12 @@ using UnityEngine;
 
 #if IL2CPP
 using Il2CppScheduleOne.Economy;
+using Il2CppScheduleOne.ItemFramework;
+using Il2CppScheduleOne.Product;
 #elif MONO
 using ScheduleOne.Economy;
+using ScheduleOne.ItemFramework;
+using ScheduleOne.Product;
 #endif
 
 namespace AdvancedDealing.Economy
@@ -90,6 +94,26 @@ namespace AdvancedDealing.Economy
         public void Destroy()
         {
             cache.Remove(this);
+        }
+
+        public Dictionary<ProductItemInstance, ItemSlot> GetAllProducts()
+        {
+            Dictionary<ProductItemInstance, ItemSlot> products = [];
+
+            foreach (ItemSlot slot in DeadDrop.Storage.ItemSlots)
+            {
+                if (slot.ItemInstance != null && slot.ItemInstance.Category == EItemCategory.Product)
+                {
+#if IL2CPP
+                    ProductItemInstance product = slot.ItemInstance.Cast<ProductItemInstance>();
+#elif MONO
+                    ProductItemInstance product = slot.ItemInstance as ProductItemInstance;
+#endif
+                    products.Add(product, slot);
+                }
+            }
+
+            return products;
         }
 
         public bool IsFull()

@@ -18,7 +18,7 @@ using ScheduleOne.Quests;
 
 namespace AdvancedDealing.NPCs.Actions
 {
-    public class DeliverCashSignal : SignalBase
+    public class DeliverCashAction : ActionBase
     {
         private readonly DealerExtension _dealer;
 
@@ -32,10 +32,12 @@ namespace AdvancedDealing.NPCs.Actions
 
         protected override string ActionName => "Deliver Cash";
 
-        public DeliverCashSignal(DealerExtension dealerExtension)
+        public override bool OverrideOriginalSchedule => true;
+
+        public DeliverCashAction(DealerExtension dealer)
         {
-            _dealer = dealerExtension;
-            Priority = 90;
+            _dealer = dealer;
+            Priority = 9;
         }
 
         public override void Start()
@@ -72,10 +74,7 @@ namespace AdvancedDealing.NPCs.Actions
         {
             base.MinPassed();
 
-            if (!IsActive || _instantDeliveryRoutine != null)
-            {
-                return;
-            }
+            if (!IsActive || _instantDeliveryRoutine != null) return;
 
             if (_dealer.Dealer.Cash < _dealer.CashThreshold || _deadDrop.DeadDrop.GUID.ToString() != _dealer.DeadDrop || !_dealer.DeliverCash || TimeManager.Instance.CurrentTime == 400)
             {
@@ -188,7 +187,7 @@ namespace AdvancedDealing.NPCs.Actions
 
         public override bool ShouldStart()
         {
-            if (!_dealer.Dealer.IsRecruited || !_dealer.DeliverCash || _dealer.Dealer.ActiveContracts.Count > 0 || _dealer.Dealer.Cash < _dealer.CashThreshold || TimeManager.Instance.CurrentTime == 400)
+            if (!_dealer.Dealer.IsRecruited || !_dealer.DeliverCash || _dealer.Dealer.Cash < _dealer.CashThreshold || TimeManager.Instance.CurrentTime == 400)
             {
                 return false;
             }

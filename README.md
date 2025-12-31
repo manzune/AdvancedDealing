@@ -10,6 +10,7 @@ A MelonLoader mod for Schedule1 that changes your dealers behavior, let's you co
 
 * Cash delivery to selected dead drops or via transaction
 * Communicate with dealers via messaging app
+* Product pickup at dead drops
 * Loyality mode (WIP)
 * Allow more customers per dealer
 * Add item slots to your dealers
@@ -19,12 +20,12 @@ A MelonLoader mod for Schedule1 that changes your dealers behavior, let's you co
 * Fire your dealers
 * Fully compatible with Mod Manager
 * Multiplayer ready
+* Il2Cpp & Mono included
 
 
 ### Planned
 
 * Change dealer signing fee
-* Product pickup at dead drops
 * Customizable quality bonus
 * More deal related actions and behavior for dealers and customers
 
@@ -49,7 +50,7 @@ If you're running into any bugs or issues using this mod, use the [Issues sectio
 
 ### Configuration
 
-Config files for general settings will be generated after the first game launch after installation and can be found inside the **UserData** folder.
+The config file will be generated after the first launch after mod installation and can be found inside the UserData folder.
 Savegame related settings can be applied ingame by using the messaging app on your phone.
 
 ### Multiplayer behavior

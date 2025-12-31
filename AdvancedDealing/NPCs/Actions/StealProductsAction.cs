@@ -1,12 +1,12 @@
 ﻿using AdvancedDealing.Economy;
 using System.Collections.Generic;
-using System;
-
 
 #if IL2CPP
 using Il2CppScheduleOne.ItemFramework;
+using Il2CppScheduleOne.Product;
 #elif MONO
 using ScheduleOne.ItemFramework;
+using ScheduleOne.Product;
 #endif
 
 namespace AdvancedDealing.NPCs.Actions
@@ -40,7 +40,7 @@ namespace AdvancedDealing.NPCs.Actions
 
             foreach (ItemSlot slot in NPC.Inventory.ItemSlots)
             {
-                if (slot.ItemInstance != null && slot.ItemInstance.Category == EItemCategory.Product && slot.ItemInstance.Quantity > 0)
+                if (slot.ItemInstance != null && slot.ItemInstance.Category == EItemCategory.Product)
                 {
                     validSlots.Add(slot);
                 }
@@ -63,11 +63,6 @@ namespace AdvancedDealing.NPCs.Actions
             }
 
             End();
-        }
-
-        public override bool ShouldOverrideOriginalSchedule()
-        {
-            return false;
         }
     }
 }

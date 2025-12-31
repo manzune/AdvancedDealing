@@ -13,6 +13,8 @@ using System.Reflection;
 using Il2CppGameKit.Utilities;
 using Il2CppScheduleOne.DevUtilities;
 using Il2CppScheduleOne.Economy;
+using Il2CppScheduleOne.ItemFramework;
+using Il2CppScheduleOne.Product;
 using Il2CppScheduleOne.Messaging;
 using Il2CppScheduleOne.NPCs;
 using Il2CppScheduleOne.UI.Phone.Messages;
@@ -21,6 +23,8 @@ using Il2CppScheduleOne.GameTime;
 using GameKit.Utilities;
 using ScheduleOne.DevUtilities;
 using ScheduleOne.Economy;
+using ScheduleOne.ItemFramework;
+using ScheduleOne.Product;
 using ScheduleOne.Messaging;
 using ScheduleOne.NPCs;
 using ScheduleOne.UI.Phone.Messages;
@@ -55,7 +59,11 @@ namespace AdvancedDealing.Economy
 
         public bool DeliverCash;
 
+        public bool PickupProducts;
+
         public float CashThreshold;
+
+        public int ProductThreshold;
 
         public int DaysUntilNextNegotiation;
 
@@ -257,10 +265,7 @@ namespace AdvancedDealing.Economy
             Dealer.ActiveContracts.Clear();
             Dealer.Inventory.Clear();
 
-            if (Dealer.DealerPoI != null)
-            {
-                Dealer.DealerPoI.enabled = false;
-            }
+            Dealer.DealerPoI?.enabled = false;
 
             if (Dealer.DialogueController != null)
             {
@@ -309,6 +314,48 @@ namespace AdvancedDealing.Economy
             Destroy(false);
 
             Utils.Logger.Debug("DealerExtension", $"Dealer fired: {Dealer.fullName}");
+        }
+
+        public Dictionary<ProductItemInstance, ItemSlot> GetAllProducts(out int totalAmount)
+        {
+            Dictionary<ProductItemInstance, ItemSlot> products = [];
+            totalAmount = 0;
+
+            foreach (ItemSlot slot in Dealer.GetAllSlots())
+            {
+                if (slot.ItemInstance != null && slot.ItemInstance.Category == EItemCategory.Product)
+                {
+#if IL2CPP
+                    ProductItemInstance product = slot.ItemInstance.Cast<ProductItemInstance>();
+#elif MONO
+                    ProductItemInstance product = slot.ItemInstance as ProductItemInstance;
+#endif
+                    products.Add(product, slot);
+                    totalAmount += product.Quantity * product.Amount;
+                }
+            }
+
+            return products;
+        }
+
+        public bool IsInventoryFull(out int freeSlots)
+        {
+            freeSlots = 0;
+
+            foreach (ItemSlot slot in Dealer.Inventory.ItemSlots)
+            {
+                if (slot.ItemInstance == null)
+                {
+                    freeSlots++;
+                }
+            }
+
+            if (freeSlots > 0)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public void ChangeLoyality(float amount)
@@ -395,11 +442,14 @@ namespace AdvancedDealing.Economy
             NetworkSingleton<TimeManager>.Instance.onSleepStart += new Action(OnSleepStart);
 
             Schedule = new(Dealer);
-            Schedule.AddAction(new DeliverCashSignal(this));
+            Schedule.AddAction(new DeliverCashAction(this));
+            Schedule.AddAction(new PickupProductsAction(this));
 
             Conversation = new(Dealer);
             Conversation.AddSendableMessage(new EnableDeliverCashMessage(this));
             Conversation.AddSendableMessage(new DisableDeliverCashMessage(this));
+            Conversation.AddSendableMessage(new EnableProductPickupMessage(this));
+            Conversation.AddSendableMessage(new DisableProductPickupMessage(this));
             Conversation.AddSendableMessage(new AccessInventoryMessage(this));
             Conversation.AddSendableMessage(new PayBonusMessage(this));
             Conversation.AddSendableMessage(new NegotiateCutMessage(this));
