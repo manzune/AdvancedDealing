@@ -37,7 +37,7 @@ namespace AdvancedDealing.NPCs.Actions
         public DeliverCashAction(DealerExtension dealer)
         {
             _dealer = dealer;
-            Priority = 9;
+            Priority = 5;
         }
 
         public override void Start()
@@ -89,14 +89,7 @@ namespace AdvancedDealing.NPCs.Actions
 
                 if (IsAtDestination())
                 {
-                    if (!_deadDrop.IsFull())
-                    {
-                        BeginDelivery();
-                    }
-                    else
-                    {
-                        End();
-                    }
+                    BeginDelivery();
                 }
                 else
                 {
@@ -118,29 +111,41 @@ namespace AdvancedDealing.NPCs.Actions
                 yield return new WaitForSeconds(2f);
 
                 _dealer.Dealer.SetAnimationTrigger("GrabItem");
-                _deadDrop.DeadDrop.Storage.InsertItem(MoneyManager.Instance.GetCashInstance(cash));
-                _dealer.SendMessage($"I've put ${cash:F0} inside the dead drop {_deadDrop.DeadDrop.name}.", ModConfig.NotifyOnAction);
 
-                if (ModConfig.NotifyOnAction)
+                if (_deadDrop.IsFull())
                 {
-                    DeaddropQuest quest = NetworkSingleton<QuestManager>.Instance.CreateDeaddropCollectionQuest(_deadDrop.DeadDrop.GUID.ToString());
+                    _deadDropIsFull = true;
+                    _dealer.SendMessage($"Could not deliver cash to dead drop {_deadDrop.DeadDrop.DeadDropName}. There is no space inside!", ModConfig.NotifyOnAction);
 
-                    if (quest != null)
-                    {
-                        quest.Description = $"Collect cash at {_deadDrop.DeadDrop.DeadDropDescription}";
-                        quest.Entries[0].SetEntryTitle($"{_dealer.Dealer.name}'s cash delivery {_deadDrop.DeadDrop.DeadDropName}");
-                    }
+                    Utils.Logger.Debug($"Cash delivery for {_dealer.Dealer.fullName} failed: Dead drop is full");
                 }
+                else
+                {
+                    _deadDrop.DeadDrop.Storage.InsertItem(MoneyManager.Instance.GetCashInstance(cash));
+                    _dealer.SendMessage($"I've put ${cash:F0} inside the dead drop {_deadDrop.DeadDrop.name}.", ModConfig.NotifyOnAction);
 
-                _dealer.Dealer.ChangeCash(-cash);
+                    if (ModConfig.NotifyOnAction)
+                    {
+                        DeaddropQuest quest = NetworkSingleton<QuestManager>.Instance.CreateDeaddropCollectionQuest(_deadDrop.DeadDrop.GUID.ToString());
 
-                Utils.Logger.Debug($"Cash from {_dealer.Dealer.fullName} delivered successfully");
+                        if (quest != null)
+                        {
+                            quest.Description = $"Collect cash at {_deadDrop.DeadDrop.DeadDropDescription}";
+                            quest.Entries[0].SetEntryTitle($"{_dealer.Dealer.name}'s cash delivery {_deadDrop.DeadDrop.DeadDropName}");
+                        }
+                    }
 
-                yield return new WaitUntil((Func<bool>)(() => _dealer.Dealer.Cash < _dealer.CashThreshold));
+                    _dealer.Dealer.ChangeCash(-cash);
+
+                    Utils.Logger.Debug($"Cash from {_dealer.Dealer.fullName} delivered successfully");
+
+                    yield return new WaitUntil((Func<bool>)(() => _dealer.Dealer.Cash < _dealer.CashThreshold));
+                }
 
                 End();
             }
         }
+        
 
         private void BeginInstantDelivery()
         {
@@ -160,16 +165,6 @@ namespace AdvancedDealing.NPCs.Actions
             }
         }
 
-        private bool IsAtDestination()
-        {
-            if (_deadDrop == null)
-            {
-                return true;
-            }
-
-            return Vector3.Distance(Movement.FootPosition, _deadDrop.GetPosition()) < 2f;
-        }
-
         private void StopRoutines()
         {
             if (_deliveryRoutine != null)
@@ -187,20 +182,15 @@ namespace AdvancedDealing.NPCs.Actions
 
         public override bool ShouldStart()
         {
-            if (!_dealer.Dealer.IsRecruited || !_dealer.DeliverCash || _dealer.Dealer.Cash < _dealer.CashThreshold || TimeManager.Instance.CurrentTime == 400)
+            if (!_dealer.Dealer.IsRecruited || !_dealer.DeliverCash || _dealer.Dealer.Cash < _dealer.CashThreshold || TimeManager.Instance.CurrentTime == 400 || _dealer.Dealer.ActiveContracts.Count > 0)
             {
                 return false;
             }
 
             DeadDropExtension deadDrop = DeadDropExtension.GetDeadDrop(_dealer.DeadDrop);
 
-            if (deadDrop != null && deadDrop.IsFull())
+            if (_deadDropIsFull && deadDrop != null && deadDrop.IsFull())
             {
-                if (!_deadDropIsFull)
-                {
-                    _deadDropIsFull = true;
-                    _dealer.SendMessage($"Could not deliver cash to dead drop {deadDrop.DeadDrop.DeadDropName}. There is no space inside!", ModConfig.NotifyOnAction);
-                }
                 return false;
             }
 

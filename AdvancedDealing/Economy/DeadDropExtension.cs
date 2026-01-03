@@ -118,7 +118,18 @@ namespace AdvancedDealing.Economy
 
         public bool IsFull()
         {
-            return DeadDrop.Storage.ItemCount >= DeadDrop.Storage.SlotCount;
+            bool isFull = true;
+
+            foreach (ItemSlot slot in DeadDrop.Storage.ItemSlots)
+            {
+                if (slot.Quantity <= 0)
+                {
+                    isFull = false;
+                    break;
+                }
+            }
+
+            return isFull;
         }
 
         public Vector3 GetPosition()

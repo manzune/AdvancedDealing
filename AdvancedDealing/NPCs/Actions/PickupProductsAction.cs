@@ -176,11 +176,6 @@ namespace AdvancedDealing.NPCs.Actions
             }
         }
 
-        private bool IsAtDestination()
-        {
-            return Vector3.Distance(Movement.FootPosition, _deadDrop.GetPosition()) < 2f;
-        }
-
         private void StopRoutines()
         {
             if (_pickupRoutine != null)

@@ -45,6 +45,8 @@ namespace AdvancedDealing.NPCs.Actions
 
         protected virtual bool RemoveOnEnd => false;
 
+        private Vector3 _lastDestination;
+
         public virtual void SetReferences(NPC npc, Schedule schedule, int startTime = 0)
         {
             NPC = npc;
@@ -66,11 +68,11 @@ namespace AdvancedDealing.NPCs.Actions
             NetworkSingleton<TimeManager>.Instance.onMinutePass -= new Action(MinPassed);
             NetworkSingleton<TimeManager>.Instance.onMinutePass += new Action(MinPassed);
 
-            Utils.Logger.Debug($"{ActionType} \"{ActionName}\" for {NPC.name} started.");
-
             IsActive = true;
             Schedule.ActiveAction = this;
             HasStarted = true;
+
+            Utils.Logger.Debug($"{ActionType} \"{ActionName}\" for {NPC.name} started.");
         }
 
         public void Destroy()
@@ -100,16 +102,16 @@ namespace AdvancedDealing.NPCs.Actions
 
         public virtual void End()
         {
+            IsActive = false;
+            Schedule.ActiveAction = null;
+            HasStarted = false;
+
+            Utils.Logger.Debug($"{ActionType} \"{ActionName}\" for {NPC.name} ended.");
+
             if (OverrideOriginalSchedule)
             {
                 S1Schedule.EnableSchedule();
             }
-
-            Utils.Logger.Debug("ScheduleManager", $"{ActionType} \"{ActionName}\" for {NPC.name} ended.");
-
-            IsActive = false;
-            Schedule.ActiveAction = null;
-            HasStarted = false;
 
             if (RemoveOnEnd)
             {
@@ -121,15 +123,15 @@ namespace AdvancedDealing.NPCs.Actions
 
         public virtual void Interrupt()
         {
+            IsActive = false;
+            Schedule.ActiveAction = null;
+
+            Utils.Logger.Debug($"{ActionType} \"{ActionName}\" for {NPC.name} interrupted.");
+
             if (OverrideOriginalSchedule)
             {
                 S1Schedule.EnableSchedule();
             }
-
-            Utils.Logger.Debug("ScheduleManager", $"{ActionType} \"{ActionName}\" for {NPC.name} interrupted.");
-
-            IsActive = false;
-            Schedule.ActiveAction = null;
 
             if (!Schedule.PendingActions.Contains(this))
             {
@@ -144,10 +146,10 @@ namespace AdvancedDealing.NPCs.Actions
                 S1Schedule.DisableSchedule();
             }
 
-            Utils.Logger.Debug("ScheduleManager", $"{ActionType} \"{ActionName}\" for {NPC.name} resumed.");
-
             IsActive = true;
             Schedule.ActiveAction = this;
+
+            Utils.Logger.Debug($"{ActionType} \"{ActionName}\" for {NPC.name} resumed.");
 
             if (Schedule.PendingActions.Contains(this))
             {
@@ -172,15 +174,21 @@ namespace AdvancedDealing.NPCs.Actions
         {
             if (teleportIfFail && ConsecutivePathingFailures >= MaxConsecutivePathingFailures && !Movement.CanGetTo(pos))
             {
-                Utils.Logger.Debug("ScheduleManager", $"Too many pathing failures for {NPC.name}. Warping to {pos}.");
+                Utils.Logger.Debug($"Too many pathing failures for {NPC.name}. Warping to {pos}.");
 
                 Movement.Warp(pos);
                 WalkCallback(NPCMovement.WalkResult.Success);
             }
             else
             {
+                _lastDestination = pos;
+
                 Movement.SetDestination(pos, new Action<NPCMovement.WalkResult>(WalkCallback), maximumDistanceForSuccess: 1f);
             }
+        }
+        protected bool IsAtDestination()
+        {
+            return Vector3.Distance(Movement.FootPosition, _lastDestination) < 2f;
         }
 
         protected virtual void WalkCallback(NPCMovement.WalkResult res)
