@@ -1,11 +1,11 @@
 ﻿using AdvancedDealing.Economy;
-using AdvancedDealing.Persistence;
 using HarmonyLib;
 
 #if IL2CPP
 using Il2CppScheduleOne.Economy;
 #elif MONO
 using ScheduleOne.Economy;
+using System.Reflection;
 #endif
 
 namespace AdvancedDealing.Patches
@@ -13,20 +13,26 @@ namespace AdvancedDealing.Patches
     [HarmonyPatch(typeof(Dealer))]
     public class DealerPatch
     {
-        [HarmonyPostfix]
-        [HarmonyPatch("CustomerContractEnded")]
-        public static void CustomerContractEndedPostfix(Dealer __instance)
+        [HarmonyPrefix]
+        [HarmonyPatch("OnTick")]
+        public static bool OnTickPrefix(Dealer __instance)
         {
-            if (DealerExtension.DealerExists(__instance) && NetworkSynchronizer.IsNoSyncOrHost)
+            if (DealerExtension.DealerExists(__instance))
             {
                 DealerExtension dealer = DealerExtension.GetDealer(__instance);
-                dealer.DailyContractCount++;
-
-                if (dealer.DailyContractCount > 6)
+                
+                if (dealer.HasActiveBehaviour)
                 {
-                    dealer.ChangeLoyality(0f - 10f);
+#if IL2CPP
+                    dealer.Dealer.UpdatePotentialDealerPoI();
+#elif MONO
+                    typeof(Dealer).GetMethod("UpdatePotentialDealerPoI", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(__instance, []);
+#endif
+                    return false;
                 }
             }
+
+            return true;
         }
     }
 }

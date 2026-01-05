@@ -48,11 +48,6 @@ namespace AdvancedDealing.Messaging.Messages
             else if (value > _dealer.Cut)
             {
                 _dealer.SendMessage("Haha.. you idiot! Yeah sure", false, true, 2f);
-
-                if (ModConfig.LoyalityMode)
-                {
-                    _dealer.ChangeLoyality(0f - 5f);
-                }
             }
             else
             {
@@ -67,11 +62,6 @@ namespace AdvancedDealing.Messaging.Messages
                     _dealer.SendMessage("Naah.. no chance!", false, true, 2f);
 
                     _dealer.DaysUntilNextNegotiation = 3;
-
-                    if (ModConfig.LoyalityMode)
-                    {
-                        _dealer.ChangeLoyality(0f - 10f);
-                    }
 
                     if (NetworkSynchronizer.IsSyncing)
                     {
@@ -92,18 +82,12 @@ namespace AdvancedDealing.Messaging.Messages
             }
         }
 
-        private bool CalculateResponse(float oldCut, float newCut)
+        private static bool CalculateResponse(float oldCut, float newCut)
         {
             float baseChance = ModConfig.NegotiationModifier;
+            float chance = baseChance - (1f - (newCut * 100f / oldCut / 100f));
 
-            // Loyality mode
-            if (ModConfig.LoyalityMode)
-            {
-                baseChance = _dealer.Loyality / 100;
-            }
-
-            float difference = Math.Abs(oldCut - newCut);
-            float chance = (baseChance - (baseChance * (difference * 100) / 100)) / 100;
+            Utils.Logger.Debug(chance.ToString());
 
             return UnityEngine.Random.value <= chance;
         }

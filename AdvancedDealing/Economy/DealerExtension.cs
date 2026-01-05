@@ -1,16 +1,14 @@
 ﻿using AdvancedDealing.Messaging;
 using AdvancedDealing.Messaging.Messages;
-using AdvancedDealing.NPCs;
-using AdvancedDealing.NPCs.Actions;
 using AdvancedDealing.Persistence;
 using AdvancedDealing.Persistence.Datas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AdvancedDealing.NPCs.Behaviour;
 
 #if IL2CPP
-using Il2CppGameKit.Utilities;
 using Il2CppScheduleOne.DevUtilities;
 using Il2CppScheduleOne.Economy;
 using Il2CppScheduleOne.ItemFramework;
@@ -20,7 +18,6 @@ using Il2CppScheduleOne.NPCs;
 using Il2CppScheduleOne.UI.Phone.Messages;
 using Il2CppScheduleOne.GameTime;
 #elif MONO
-using GameKit.Utilities;
 using ScheduleOne.DevUtilities;
 using ScheduleOne.Economy;
 using ScheduleOne.ItemFramework;
@@ -39,8 +36,6 @@ namespace AdvancedDealing.Economy
 
         public readonly Dealer Dealer;
 
-        public Schedule Schedule;
-
         public Conversation Conversation;
 
         public string DeadDrop;
@@ -55,8 +50,6 @@ namespace AdvancedDealing.Economy
 
         public float SpeedMultiplier;
 
-        public float Loyality;
-
         public bool DeliverCash;
 
         public bool PickupProducts;
@@ -67,9 +60,15 @@ namespace AdvancedDealing.Economy
 
         public int DaysUntilNextNegotiation;
 
-        public int DailyContractCount;
-
         public bool HasChanged;
+
+        private DealerBehaviour _activeBehaviour;
+
+        private DeliverCashDealerBehaviour _deliverCashBehaviour;
+
+        private PickupProductsDealerBehaviour _pickupProductsBehaviour;
+
+        public bool HasActiveBehaviour => _activeBehaviour != null;
 
         public DealerExtension(Dealer dealer)
         {
@@ -82,7 +81,7 @@ namespace AdvancedDealing.Economy
                 dealerData.LoadDefaults();
                 SaveModifier.Instance.SaveData.Dealers.Add(dealerData);
             }
-            else if (dealerData.ModVersion != ModInfo.Version)
+            else if (dealerData.ModVersion != ModInfo.VERSION)
             {
                 DealerData oldDealerData = dealerData;
                 dealerData = new(oldDealerData.Identifier);
@@ -175,11 +174,11 @@ namespace AdvancedDealing.Economy
 
         public void Destroy(bool clearCache = true)
         {
-            NetworkSingleton<TimeManager>.Instance?.onMinutePass -= new Action(OnMinPassed);
+            NetworkSingleton<TimeManager>.Instance?.onTick -= new Action(OnTick);
             NetworkSingleton<TimeManager>.Instance?.onSleepStart -= new Action(OnSleepStart);
 
-            Schedule?.Destroy();
             Conversation?.Destroy();
+            _activeBehaviour?.Disable();
 
             if (clearCache)
             {
@@ -220,12 +219,11 @@ namespace AdvancedDealing.Economy
 
                 Utils.Logger.Debug("DealerExtension", $"Data for {Dealer.fullName} patched");
             }
+        }
 
-            // Loyality Mode
-            if (ModConfig.LoyalityMode)
-            {
-                SetLoyalityStats();
-            }
+        public void SetActiveBehaviour(DealerBehaviour behaviour)
+        {
+            _activeBehaviour = behaviour;
         }
 
         public void SendMessage(string text, bool notify = true, bool network = true, float delay = 0)
@@ -358,92 +356,13 @@ namespace AdvancedDealing.Economy
             return true;
         }
 
-        public void ChangeLoyality(float amount)
-        {
-            float newLoyality = Loyality + amount;
-            
-            if (newLoyality >= 100f)
-            {
-                Loyality = 100f;
-            }
-            else if (newLoyality <= 0f)
-            {
-                Loyality = 0f;
-            }
-            else
-            {
-                Loyality = newLoyality;
-            }
-
-            Utils.Logger.Debug("DealerExtension", $"Loyality for {Dealer.fullName} changed: {newLoyality}");
-
-            SetLoyalityStats();
-
-            if (NetworkSynchronizer.IsSyncing)
-            {
-                NetworkSynchronizer.Instance.SendData(FetchData());
-            }
-        }
-
-        private void SetLoyalityStats()
-        {
-            int maxCustomers;
-            float speedMultiplier;
-
-            if (Loyality <= 19)
-            {
-                maxCustomers = 4;
-                speedMultiplier = 0.6f;
-            }
-            else if (Loyality <= 39)
-            {
-                maxCustomers = 6;
-                speedMultiplier = 0.8f;
-            }
-            else if (Loyality <= 59)
-            {
-                maxCustomers = 8;
-                speedMultiplier = 1f;
-            }
-            else if (Loyality <= 79)
-            {
-                maxCustomers = 12;
-                speedMultiplier = 1.3f;
-            }
-            else
-            {
-                maxCustomers = 16;
-                speedMultiplier = 1.6f;
-            }
-
-            if (Dealer.AssignedCustomers.Count > maxCustomers)
-            {
-                for (int i = Dealer.AssignedCustomers.Count - 1; i >= 0; i--)
-                {
-                    if (i + 1 <= maxCustomers)
-                    {
-                        break;
-                    }
-
-                    Dealer.RemoveCustomer(Dealer.AssignedCustomers[i]);
-                }
-            }
-
-            MaxCustomers = maxCustomers;
-            SpeedMultiplier = speedMultiplier;
-            HasChanged = true;
-
-            Utils.Logger.Debug("DealerExtension", $"Loyality stats for {Dealer.fullName} updated");
-        }
-
         private void Awake()
         {
-            NetworkSingleton<TimeManager>.Instance.onMinutePass += new Action(OnMinPassed);
+            NetworkSingleton<TimeManager>.Instance.onTick += new Action(OnTick);
             NetworkSingleton<TimeManager>.Instance.onSleepStart += new Action(OnSleepStart);
 
-            Schedule = new(Dealer);
-            Schedule.AddAction(new DeliverCashAction(this));
-            Schedule.AddAction(new PickupProductsAction(this));
+            _deliverCashBehaviour = new(this);
+            _pickupProductsBehaviour = new(this);
 
             Conversation = new(Dealer);
             Conversation.AddSendableMessage(new EnableDeliverCashMessage(this));
@@ -451,7 +370,6 @@ namespace AdvancedDealing.Economy
             Conversation.AddSendableMessage(new EnableProductPickupMessage(this));
             Conversation.AddSendableMessage(new DisableProductPickupMessage(this));
             Conversation.AddSendableMessage(new AccessInventoryMessage(this));
-            Conversation.AddSendableMessage(new PayBonusMessage(this));
             Conversation.AddSendableMessage(new NegotiateCutMessage(this));
             Conversation.AddSendableMessage(new AdjustSettingsMessage(this));
             Conversation.AddSendableMessage(new FiredMessage(this));
@@ -498,16 +416,11 @@ namespace AdvancedDealing.Economy
             }
         }
 
-        private void OnMinPassed()
+        private void OnTick()
         {
             if (IsFired)
             {
                 return;
-            }
-
-            if (NetworkSynchronizer.IsNoSyncOrHost && Schedule != null && !Schedule.IsEnabled)
-            {
-                Schedule.Start();
             }
 
             if (HasChanged)
@@ -516,6 +429,37 @@ namespace AdvancedDealing.Economy
 
                 Update();
             }
+
+            GetAllProducts(out var totalAmount);
+
+            if (NetworkSynchronizer.IsNoSyncOrHost)
+            {
+                if (!_pickupProductsBehaviour.IsEnabled && PickupProducts && totalAmount <= ProductThreshold && !IsInventoryFull(out var freeSlots) && freeSlots > 1)
+                {
+                    _pickupProductsBehaviour.Enable();
+                }
+
+                if (!_deliverCashBehaviour.IsEnabled && DeliverCash && Dealer.Cash >= CashThreshold)
+                {
+                    _deliverCashBehaviour.Enable();
+                }
+
+                if (_activeBehaviour == null)
+                {
+                    if (_pickupProductsBehaviour.IsEnabled)
+                    {
+                        _pickupProductsBehaviour.Start();
+                    }
+                    else if (_deliverCashBehaviour.IsEnabled && Dealer.ActiveContracts.Count <= 0)
+                    {
+                        _deliverCashBehaviour.Start();
+                    }
+                }
+                else if (_activeBehaviour.IsActive)
+                {
+                    _activeBehaviour.OnActiveTick();
+                }
+            }
         }
 
         private void OnSleepStart()
@@ -523,57 +467,6 @@ namespace AdvancedDealing.Economy
             if (DaysUntilNextNegotiation > 0)
             {
                 DaysUntilNextNegotiation--;
-            }
-
-            // Loyality Mode
-            if (ModConfig.LoyalityMode && NetworkSynchronizer.IsNoSyncOrHost)
-            {
-                StartRandomLoyalityAction();
-            }
-
-            DailyContractCount = 0;
-        }
-
-        private void StartRandomLoyalityAction()
-        {
-            List<ActionBase> actions = [];
-
-            if (Loyality.InRange(0, 10))
-            {
-                actions.Add(new ResignAction(this));
-                actions.Add(new StealProductsAction(this, 40, 50));
-                actions.Add(new StealCashAction(this, 40, 50));
-            }
-            else if (Loyality.InRange(11, 30))
-            {
-                actions.Add(new StealProductsAction(this, 25, 40));
-                actions.Add(new StealCashAction(this, 25, 40));
-            }
-            else if (Loyality.InRange(31, 50))
-            {
-                actions.Add(new StealProductsAction(this, 10, 25));
-                actions.Add(new StealCashAction(this, 10, 25));
-            }
-            else if (Loyality.InRange(51, 70))
-            {
-                actions.Add(new StealProductsAction(this, 3, 10));
-                actions.Add(new StealCashAction(this, 3, 10));
-            }
-            else if (Loyality.InRange(71, 90))
-            {
-                actions.Add(new StealProductsAction(this, 1, 3));
-                actions.Add(new StealCashAction(this, 1, 3));
-            }
-
-            if (actions.Count == 1)
-            {
-                Schedule.AddAction(actions[0]);
-            }
-            else if (actions.Count > 1)
-            {
-                int i = UnityEngine.Random.Range(0, actions.Count);
-
-                Schedule.AddAction(actions[i]);
             }
         }
     }

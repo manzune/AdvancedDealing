@@ -17,7 +17,7 @@
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
 		<LangVersion>latest</LangVersion>
-		<Version>1.1.1</Version>
+		<Version>1.2.0</Version>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Il2Cpp'">
@@ -51,6 +51,9 @@
 		<Reference Include="UnityEngine">
 			<HintPath>$(Il2CppAssemblyPath)\UnityEngine.dll</HintPath>
 		</Reference>
+		<Reference Include="UnityEngine.AIModule">
+			<HintPath>$(Il2CppAssemblyPath)\UnityEngine.AIModule.dll</HintPath>
+		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
 			<HintPath>$(Il2CppAssemblyPath)\UnityEngine.CoreModule.dll</HintPath>
 		</Reference>
@@ -81,6 +84,9 @@
 		</Reference>
 		<Reference Include="UnityEngine">
 			<HintPath>$(MonoAssemblyPath)\UnityEngine.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.AIModule">
+			<HintPath>$(MonoAssemblyPath)\UnityEngine.AIModule.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
 			<HintPath>$(MonoAssemblyPath)\UnityEngine.CoreModule.dll</HintPath>

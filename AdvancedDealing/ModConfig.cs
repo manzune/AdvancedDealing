@@ -18,20 +18,6 @@ namespace AdvancedDealing
             set => generalCategory.GetEntry<bool>("Debug").Value = value;
         }
 
-        public static bool LoyalityMode
-        {
-            get
-            {
-                if (NetworkSynchronizer.IsSyncing && NetworkSynchronizer.Instance.SessionData != null)
-                {
-                    return NetworkSynchronizer.Instance.SessionData.LoyalityMode;
-                }
-
-                return generalCategory.GetEntry<bool>("LoyalityMode").Value;
-            }
-            set => generalCategory.GetEntry<bool>("LoyalityMode").Value = value;
-        }
-
         public static bool SkipMovement
         {
             get => generalCategory.GetEntry<bool>("SkipMovement").Value;
@@ -90,8 +76,8 @@ namespace AdvancedDealing
         {
             if (isInitialized) return;
 
-            generalCategory = MelonPreferences.CreateCategory($"{ModInfo.Name}_01_General", $"{ModInfo.Name} - General Settings", false, true);
-            string path = Path.Combine(MelonEnvironment.UserDataDirectory, $"{ModInfo.Name}.cfg");
+            generalCategory = MelonPreferences.CreateCategory($"{ModInfo.NAME}_01_General", $"{ModInfo.NAME} - General Settings", false, true);
+            string path = Path.Combine(MelonEnvironment.UserDataDirectory, $"{ModInfo.NAME}.cfg");
 
             generalCategory.SetFilePath(path, true, false);
 
@@ -118,14 +104,6 @@ namespace AdvancedDealing
                 default_value: false,
                 display_name: "Enable Debug Mode",
                 description: "Enables debugging for this mod",
-                is_hidden: false
-            );
-            generalCategory.CreateEntry<bool>
-            (
-                identifier: "LoyalityMode",
-                default_value: false,
-                display_name: "Loyality Mode (WIP)",
-                description: "Makes the mod less feel like a cheat",
                 is_hidden: false
             );
             generalCategory.CreateEntry<bool>
