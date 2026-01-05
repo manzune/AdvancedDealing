@@ -29,7 +29,7 @@ namespace AdvancedDealing.Persistence
 
         protected Callback<LobbyDataUpdate_t> LobbyDataUpdateCallback;
 
-        private readonly string _prefix = ModInfo.Name.GetStableHashU16().ToString();
+        private readonly string _prefix = ModInfo.NAME.GetStableHashU16().ToString();
 
         private CSteamID _lobbySteamID;
 

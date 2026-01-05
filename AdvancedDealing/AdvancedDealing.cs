@@ -1,20 +1,8 @@
 ﻿using AdvancedDealing;
 using AdvancedDealing.Persistence;
 using MelonLoader;
-using UnityEngine.Events;
-using SaveModifier = AdvancedDealing.Persistence.SaveModifier;
-using System;
 
-
-#if IL2CPP
-using Il2CppScheduleOne.DevUtilities;
-using Il2CppScheduleOne.Persistence;
-#elif MONO
-using ScheduleOne.DevUtilities;
-using ScheduleOne.Persistence;
-#endif
-
-[assembly: MelonInfo(typeof(AdvancedDealing.AdvancedDealing), $"{ModInfo.Name}", ModInfo.Version, ModInfo.Author, ModInfo.DownloadLink)]
+[assembly: MelonInfo(typeof(AdvancedDealing.AdvancedDealing), $"{ModInfo.NAME}", ModInfo.VERSION, ModInfo.AUTHOR, ModInfo.DOWNLOAD_LINK)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 [assembly: MelonColor(255, 113, 195, 230)]
 #if IL2CPP
@@ -44,7 +32,7 @@ namespace AdvancedDealing
                     SaveModifier = new();
                     NetworkSynchronizer = new();
 
-                    Utils.Logger.Msg($"{ModInfo.Name} v{ModInfo.Version} initialized");
+                    Utils.Logger.Msg($"{ModInfo.NAME} v{ModInfo.VERSION} initialized");
 
                     IsInitialized = true;
                 }

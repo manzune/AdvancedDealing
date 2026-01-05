@@ -8,5 +8,7 @@ namespace AdvancedDealing.Persistence
         public string SaveName;
 
         public List<DealerData> Dealers;
+
+        public List<DeadDropData> DeadDrops;
     }
 }

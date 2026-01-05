@@ -16,7 +16,7 @@ namespace AdvancedDealing.UI
 {
     public class CustomersScrollView
     {
-        public const int MaxEntries = 24;
+        public const int MAX_ENTRIES = 24;
 
         public GameObject Container;
 
@@ -98,16 +98,16 @@ namespace AdvancedDealing.UI
         {
 #if IL2CPP
             Il2CppReferenceArray<RectTransform> currentEntries = PlayerSingleton<DealerManagementApp>.Instance.CustomerEntries;
-            Il2CppReferenceArray<RectTransform> entries = new(MaxEntries);
+            Il2CppReferenceArray<RectTransform> entries = new(MAX_ENTRIES);
 #elif MONO
             RectTransform[] currentEntries = PlayerSingleton<DealerManagementApp>.Instance.CustomerEntries;
-            RectTransform[] entries = new RectTransform[MaxEntries];
+            RectTransform[] entries = new RectTransform[MAX_ENTRIES];
 #endif
             int currentCount = currentEntries.Length;
 
-            if (currentCount == MaxEntries) return;
+            if (currentCount == MAX_ENTRIES) return;
 
-            for (int i = 0; i < MaxEntries; i++)
+            for (int i = 0; i < MAX_ENTRIES; i++)
             {
                 if (i < currentCount)
                 {

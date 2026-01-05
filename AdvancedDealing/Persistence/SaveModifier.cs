@@ -1,5 +1,4 @@
 ﻿using AdvancedDealing.Economy;
-using AdvancedDealing.NPCs;
 using AdvancedDealing.UI;
 using MelonLoader;
 using System.Collections;
@@ -8,8 +7,6 @@ using UnityEngine.Events;
 using System.IO;
 using System.Collections.Generic;
 using AdvancedDealing.Persistence.IO;
-
-
 
 #if IL2CPP
 using Il2CppScheduleOne.DevUtilities;
@@ -31,7 +28,7 @@ namespace AdvancedDealing.Persistence
 
         public bool SavegameLoaded { get; private set; }
 
-        private static string FilePath => Path.Combine(Singleton<LoadManager>.Instance.ActiveSaveInfo.SavePath, $"{ModInfo.Name}.json");
+        private static string FilePath => Path.Combine(Singleton<LoadManager>.Instance.ActiveSaveInfo.SavePath, $"{ModInfo.NAME}.json");
 
         public SaveModifier()
         {
@@ -62,12 +59,18 @@ namespace AdvancedDealing.Persistence
                     SaveData = new()
                     {
                         SaveName = $"SaveGame_{Singleton<LoadManager>.Instance.ActiveSaveInfo.SaveSlotNumber}",
-                        Dealers = []
+                        Dealers = [],
+                        DeadDrops = []
                     };
                 }
                 else
                 {
-                    SaveData = data;
+                    SaveData = new()
+                    {
+                        SaveName = $"SaveGame_{Singleton<LoadManager>.Instance.ActiveSaveInfo.SaveSlotNumber}",
+                        Dealers = data.Dealers ?? [],
+                        DeadDrops = data.DeadDrops ?? []
+                    };
                 }
 
                 DeadDropExtension.Initialize();
@@ -78,7 +81,6 @@ namespace AdvancedDealing.Persistence
                     NetworkSynchronizer.Instance.SetAsHost();
                     NetworkSynchronizer.Instance.SessionData = new(Singleton<Lobby>.Instance.LobbySteamID.ToString())
                     {
-                        LoyalityMode = ModConfig.LoyalityMode,
                         AccessInventory = ModConfig.AccessInventory,
                         SettingsMenu = ModConfig.SettingsMenu,
                         NegotiationModifier = ModConfig.NegotiationModifier
@@ -125,7 +127,6 @@ namespace AdvancedDealing.Persistence
         public void ClearModifications()
         {
             UIBuilder.Reset();
-            Schedule.ClearAllSchedules();
             List<DealerExtension> dealers = DealerExtension.GetAllDealers();
 
             for (int i = dealers.Count - 1; i >= 0; i--)
@@ -145,7 +146,8 @@ namespace AdvancedDealing.Persistence
                 DataWrapper wrapper = new()
                 {
                     SaveName = $"SaveGame_{Singleton<LoadManager>.Instance.ActiveSaveInfo.SaveSlotNumber}",
-                    Dealers = DealerExtension.FetchAllDealerDatas()
+                    Dealers = DealerExtension.FetchAllDealerDatas(),
+                    DeadDrops = DeadDropExtension.FetchAllDeadDropDatas()
                 };
 
                 Utils.Logger.Msg($"Data for {wrapper.SaveName} saved");

@@ -11,7 +11,7 @@ A MelonLoader mod for Schedule1 that changes your dealers behavior, let's you co
 * Cash delivery to selected dead drops or via transaction
 * Communicate with dealers via messaging app
 * Product pickup at dead drops
-* Loyality mode (WIP)
+* ~~Loyality mode~~ (Temporary removed)
 * Allow more customers per dealer
 * Add item slots to your dealers
 * Negotiate cut %
@@ -56,20 +56,6 @@ Savegame related settings can be applied ingame by using the messaging app on yo
 ### Multiplayer behavior
 
 The followeing settings are restricted to change if you are in a multiplayer session:
-* LoyalityMode
 * AccessInventory
 * SettingsMenu
 * NegotiationModifier
-
-# Loyality Mode
-
-The loyality mode is still WIP and some features are not implemented at this state. Use at your own risk! It's **highly recommended** to test it in a fresh savegame.
-
-### Features
-
-* Being robbed decreases loyality
-* Being fired decreases loyality
-* To much deals per day decreases loyality (Nobody likes to work too hard)
-* Bonus payed increases loyality
-* Higher loyality means: More customers to assign and more workspeed
-* Lower loyality means: The dealer could steal products or money and if you took it too far he maybe will resign

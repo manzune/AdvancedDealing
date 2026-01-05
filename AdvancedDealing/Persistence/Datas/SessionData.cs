@@ -2,8 +2,6 @@
 {
     public class SessionData : DataBase
     {
-        public bool LoyalityMode;
-
         public bool AccessInventory;
 
         public bool SettingsMenu;
