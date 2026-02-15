@@ -31,7 +31,7 @@ namespace AdvancedDealing.NPCs.Behaviour
 
         public override void Start()
         {
-            _deadDrop = DeadDropExtension.GetDeadDrop(Dealer.DeadDrop);
+            _deadDrop = DeadDropExtension.GetDeadDrop(Dealer.ProductDeadDrop);
 
             if (_deadDropIsEmpty && _deadDrop != null && _deadDrop.GetAllProducts().Count <= 0)
             {
@@ -66,7 +66,7 @@ namespace AdvancedDealing.NPCs.Behaviour
             }
             else
             {
-                if ((_deadDrop != null && _deadDrop.DeadDrop.GUID.ToString() != Dealer.DeadDrop) || !Dealer.PickupProducts)
+                if ((_deadDrop != null && _deadDrop.DeadDrop.GUID.ToString() != Dealer.ProductDeadDrop) || !Dealer.PickupProducts)
                 {
                     End();
                 }

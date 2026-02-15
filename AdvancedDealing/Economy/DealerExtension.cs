@@ -39,7 +39,9 @@ namespace AdvancedDealing.Economy
 
         public Conversation Conversation;
 
-        public string DeadDrop;
+        public string ProductDeadDrop;
+
+        public string CashDeadDrop;
 
         public bool IsFired;
 
@@ -450,11 +452,11 @@ namespace AdvancedDealing.Economy
 
                 if (_activeBehaviour == null)
                 {
-                    if (_pickupProductsBehaviour.IsEnabled && DeadDrop != null && TimeManager.Instance.CurrentTime != 400)
+                    if (_pickupProductsBehaviour.IsEnabled && ProductDeadDrop != null && TimeManager.Instance.CurrentTime != 400)
                     {
                         _pickupProductsBehaviour.Start();
                     }
-                    else if (_deliverCashBehaviour.IsEnabled && Dealer.ActiveContracts.Count <= 0 && TimeManager.Instance.CurrentTime != 400)
+                    else if (_deliverCashBehaviour.IsEnabled && CashDeadDrop != null && Dealer.ActiveContracts.Count <= 0 && TimeManager.Instance.CurrentTime != 400)
                     {
                         _deliverCashBehaviour.Start();
                     }

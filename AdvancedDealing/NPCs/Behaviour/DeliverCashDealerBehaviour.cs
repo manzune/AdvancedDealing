@@ -33,7 +33,7 @@ namespace AdvancedDealing.NPCs.Behaviour
 
         public override void Start()
         {
-            _deadDrop = DeadDropExtension.GetDeadDrop(Dealer.DeadDrop);
+            _deadDrop = DeadDropExtension.GetDeadDrop(Dealer.CashDeadDrop);
 
             if (_deadDropIsFull && _deadDrop != null && _deadDrop.IsFull())
             {
@@ -67,7 +67,7 @@ namespace AdvancedDealing.NPCs.Behaviour
             }
             else
             {
-                if (Dealer.Dealer.Cash < Dealer.CashThreshold || (_deadDrop != null && _deadDrop.DeadDrop.GUID.ToString() != Dealer.DeadDrop) || !Dealer.DeliverCash)
+                if (Dealer.Dealer.Cash < Dealer.CashThreshold || (_deadDrop != null && _deadDrop.DeadDrop.GUID.ToString() != Dealer.CashDeadDrop) || !Dealer.DeliverCash)
                 {
                     End();
                 }

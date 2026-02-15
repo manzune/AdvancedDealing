@@ -26,16 +26,26 @@ namespace AdvancedDealing.Patches
 
                 if (dealerExtension == null) return;
 
-                string deadDropName = "None";
-                string guid = dealerExtension.DeadDrop;
+                string productDeadDropName = "None";
+                string cashDeadDropName = "None";
 
-                if (guid != null)
+                string productDeadDropGuid = dealerExtension.ProductDeadDrop;
+                string cashDeadDropGuid = dealerExtension.CashDeadDrop;
+
+                if (productDeadDropGuid != null)
                 {
-                    DeadDropExtension deadDrop = DeadDropExtension.GetDeadDrop(dealerExtension.DeadDrop);
-                    deadDropName = deadDrop.DeadDrop.DeadDropName;
+                    DeadDropExtension productDeadDrop = DeadDropExtension.GetDeadDrop(dealerExtension.ProductDeadDrop);
+                    productDeadDropName = productDeadDrop.DeadDrop.DeadDropName;
+                }
+                if (cashDeadDropGuid != null)
+                {
+                    DeadDropExtension cashDeadDrop = DeadDropExtension.GetDeadDrop(dealerExtension.CashDeadDrop);
+                    cashDeadDropName = cashDeadDrop.DeadDrop.DeadDropName;
                 }
 
-                UIBuilder.DeadDropSelector.ButtonLabel.text = deadDropName;
+                UIBuilder.ProductDeadDropSelector.ButtonLabel.text = productDeadDropName;
+                UIBuilder.CashDeadDropSelector.ButtonLabel.text = cashDeadDropName;
+
                 UIBuilder.CustomersScrollView.TitleLabel.text = $"Assigned Customers ({dealerExtension.Dealer.AssignedCustomers.Count}/{dealerExtension.MaxCustomers})";
 
                 if (!(dealerExtension.Dealer.AssignedCustomers.Count >= dealerExtension.MaxCustomers))
